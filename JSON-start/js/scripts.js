@@ -11,10 +11,13 @@ fetch (apiURL)
 
     document.getElementById('place').innerHTML = weatherInfo.name;
     document.getElementById('currentTemp').innerHTML = weatherInfo.main.temp;
-      document.getElementById('windSpeed').innerHTML = weatherInfo.wind.speed;
+    document.getElementById('windSpeed').innerHTML = weatherInfo.wind.speed;
+    
+    const iconcode = weatherInfo.weather[0].icon;
+    console.log(iconcode);
+    const icon_path = "//openweathermap.org/img/w/" + iconcode + ".png";
+    console.log(icon_path);
 
+    document.getElementById('weather_icon').src = icon_path;
 
-    let sample = document.createElement("h1");
-    sample.textContent = mydata.name;
-    document.getElementById("puppy").appendChild(sample);
 }); // end of .then
