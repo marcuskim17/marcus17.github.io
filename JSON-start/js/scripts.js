@@ -10,6 +10,9 @@ fetch (apiURL)
     console.log(weatherInfo);
 
     document.getElementById('place').innerHTML = weatherInfo.name;
+    document.getElementById('currentTemp').innerHTML = weatherInfo.main.temp;
+      document.getElementById('windSpeed').innerHTML = weatherInfo.wind.speed;
+
 
     let sample = document.createElement("h1");
     sample.textContent = mydata.name;
