@@ -1,25 +1,32 @@
-<html>
-<head>
-</head>
- <body>
-  <h1>Recording From Web View</h1>
-  <div id="main">
-   <input id="button" type="button" value="Record Event" />
-  </div>
-  <script type="text/javascript">
-  function recordEvent(eventName,eventValue){
-   var iframe = document.createElement("IFRAME");
-   iframe.setAttribute("src", "af-event://inappevent?eventName="+eventName+"&eventValue="+eventValue);
-   document.documentElement.appendChild(iframe);
-   iframe.parentNode.removeChild(iframe);
-   iframe = null;
-  }
-  var button = document.getElementById("button");
-  button.onclick = function(event) {
-   var eventName = "af_purchase";
-   var eventValue = "{\"af_revenue\":\"6.72\", \"af_content_type\": \"wallets\", \"af_content_id\": \"15854\"}";
-   recordEvent(eventName, eventValue);
-  }
-  </script>
- </body>
+<!doctype html>
+<html lang="en-us">
+  <head>
+  </head>
+  <body>
+    <h1>Recording From Web View</h1>
+      <div id="main">
+        <input id="button" type="button" value="Record Event" />
+      </div>
+    <script type="text/javascript">
+      
+      function recordEvent(eventName,eventValue){
+
+        var iframe = document.createElement("IFRAME");
+        
+        iframe.setAttribute("src", "af-event://inappevent?eventName="+eventName+"&eventValue="+eventValue);
+        document.documentElement.appendChild(iframe);
+        iframe.parentNode.removeChild(iframe);
+        iframe = null;
+        }
+        
+        var button = document.getElementById("button");
+        
+        button.onclick = function(event) {
+          var eventName = "af_purchase";
+          var eventValue = "{\"af_revenue\":\"6.72\", \"af_content_type\": \"wallets\", \"af_content_id\": \"15854\"}";
+        
+          recordEvent(eventName, eventValue);
+        }
+    </script>
+  </body>
 </html>
