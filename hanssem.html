@@ -1,147 +1,6 @@
 <!DOCTYPE html>
 <!-- saved from url=(0036)https://mall.hanssem.com/m/main.html -->
-<html lang="ko" class="has-modal"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./hanssem_files/guid" async=""></script><script type="text/javascript" async="" src="./hanssem_files/js"></script><script type="text/javascript" async="" src="./hanssem_files/destination"></script><script src="./hanssem_files/568465993925864" async=""></script><script async="" src="./hanssem_files/fbevents.js"></script><script type="text/javascript" async="" src="./hanssem_files/analytics.js"></script><script type="text/javascript" async="" src="./hanssem_files/ld.js"></script><script type="text/javascript" async="" defer="" src="./hanssem_files/logger.min.js"></script><script type="text/javascript" src="./hanssem_files/wl6.js"></script><script async="" src="./hanssem_files/gtm.js"></script><script async="" src="./hanssem_files/analytics.js"></script><script>(function(){function hookGeo() {
-  //<![CDATA[
-  const WAIT_TIME = 100;
-  const hookedObj = {
-    getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),
-    watchPosition: navigator.geolocation.watchPosition.bind(navigator.geolocation),
-    fakeGeo: true,
-    genLat: 38.883333,
-    genLon: -77.000
-  };
-
-  function waitGetCurrentPosition() {
-    if ((typeof hookedObj.fakeGeo !== 'undefined')) {
-      if (hookedObj.fakeGeo === true) {
-        hookedObj.tmp_successCallback({
-          coords: {
-            latitude: hookedObj.genLat,
-            longitude: hookedObj.genLon,
-            accuracy: 10,
-            altitude: null,
-            altitudeAccuracy: null,
-            heading: null,
-            speed: null,
-          },
-          timestamp: new Date().getTime(),
-        });
-      } else {
-        hookedObj.getCurrentPosition(hookedObj.tmp_successCallback, hookedObj.tmp_errorCallback, hookedObj.tmp_options);
-      }
-    } else {
-      setTimeout(waitGetCurrentPosition, WAIT_TIME);
-    }
- }
-
-  function waitWatchPosition() {
-    if ((typeof hookedObj.fakeGeo !== 'undefined')) {
-      if (hookedObj.fakeGeo === true) {
-        navigator.getCurrentPosition(hookedObj.tmp2_successCallback, hookedObj.tmp2_errorCallback, hookedObj.tmp2_options);
-        return Math.floor(Math.random() * 10000); // random id
-      } else {
-        hookedObj.watchPosition(hookedObj.tmp2_successCallback, hookedObj.tmp2_errorCallback, hookedObj.tmp2_options);
-      }
-    } else {
-      setTimeout(waitWatchPosition, WAIT_TIME);
-    }
-  }
-
-  Object.getPrototypeOf(navigator.geolocation).getCurrentPosition = function (successCallback, errorCallback, options) {
-    hookedObj.tmp_successCallback = successCallback;
-    hookedObj.tmp_errorCallback = errorCallback;
-    hookedObj.tmp_options = options;
-    waitGetCurrentPosition();
-  };
-  Object.getPrototypeOf(navigator.geolocation).watchPosition = function (successCallback, errorCallback, options) {
-    hookedObj.tmp2_successCallback = successCallback;
-    hookedObj.tmp2_errorCallback = errorCallback;
-    hookedObj.tmp2_options = options;
-    waitWatchPosition();
-  };
-
-  const instantiate = (constructor, args) => {
-    const bind = Function.bind;
-    const unbind = bind.bind(bind);
-    return new (unbind(constructor, null).apply(null, args));
-  }
-
-  Blob = function (_Blob) {
-    function secureBlob(...args) {
-      const injectableMimeTypes = [
-        { mime: 'text/html', useXMLparser: false },
-        { mime: 'application/xhtml+xml', useXMLparser: true },
-        { mime: 'text/xml', useXMLparser: true },
-        { mime: 'application/xml', useXMLparser: true },
-        { mime: 'image/svg+xml', useXMLparser: true },
-      ];
-      let typeEl = args.find(arg => (typeof arg === 'object') && (typeof arg.type === 'string') && (arg.type));
-
-      if (typeof typeEl !== 'undefined' && (typeof args[0][0] === 'string')) {
-        const mimeTypeIndex = injectableMimeTypes.findIndex(mimeType => mimeType.mime.toLowerCase() === typeEl.type.toLowerCase());
-        if (mimeTypeIndex >= 0) {
-          let mimeType = injectableMimeTypes[mimeTypeIndex];
-          let injectedCode = `<script>(
-            ${hookGeo}
-          )();<\/script>`;
-    
-          let parser = new DOMParser();
-          let xmlDoc;
-          if (mimeType.useXMLparser === true) {
-            xmlDoc = parser.parseFromString(args[0].join(''), mimeType.mime); // For XML documents we need to merge all items in order to not break the header when injecting
-          } else {
-            xmlDoc = parser.parseFromString(args[0][0], mimeType.mime);
-          }
-
-          if (xmlDoc.getElementsByTagName("parsererror").length === 0) { // if no errors were found while parsing...
-            xmlDoc.documentElement.insertAdjacentHTML('afterbegin', injectedCode);
-    
-            if (mimeType.useXMLparser === true) {
-              args[0] = [new XMLSerializer().serializeToString(xmlDoc)];
-            } else {
-              args[0][0] = xmlDoc.documentElement.outerHTML;
-            }
-          }
-        }
-      }
-
-      return instantiate(_Blob, args); // arguments?
-    }
-
-    // Copy props and methods
-    let propNames = Object.getOwnPropertyNames(_Blob);
-    for (let i = 0; i < propNames.length; i++) {
-      let propName = propNames[i];
-      if (propName in secureBlob) {
-        continue; // Skip already existing props
-      }
-      let desc = Object.getOwnPropertyDescriptor(_Blob, propName);
-      Object.defineProperty(secureBlob, propName, desc);
-    }
-
-    secureBlob.prototype = _Blob.prototype;
-    return secureBlob;
-  }(Blob);
-
-  window.addEventListener('message', function (event) {
-    if (event.source !== window) {
-      return;
-    }
-    const message = event.data;
-    switch (message.method) {
-      case 'updateLocation':
-        if ((typeof message.info === 'object') && (typeof message.info.coords === 'object')) {
-          hookedObj.genLat = message.info.coords.lat;
-          hookedObj.genLon = message.info.coords.lon;
-          hookedObj.fakeGeo = message.info.fakeIt;
-        }
-        break;
-      default:
-        break;
-    }
-  }, false);
-  //]]>
-}hookGeo();})()</script>
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,shrink-to-fit=no,viewport-fit=cover">
@@ -170,34 +29,34 @@
     <link rel="preconnect" href="https://image.hanssem.com/">
     <link rel="preconnect" href="https://image2.hanssem.com/">
 
-<link rel="stylesheet" type="text/css" href="./hanssem_files/common.v.1.css"><!-- 공통 CSS -->
-<link rel="stylesheet" type="text/css" href="./hanssem_files/component.v.1.css"><!-- 공통 CSS -->
-<link rel="stylesheet" type="text/css" href="./hanssem_files/popup.v.1.css"><!-- 공통 CSS -->
+<link rel="stylesheet" type="text/css" href="./한샘몰 _ 한샘몰_files/common.v.1.css"><!-- 공통 CSS -->
+<link rel="stylesheet" type="text/css" href="./한샘몰 _ 한샘몰_files/component.v.1.css"><!-- 공통 CSS -->
+<link rel="stylesheet" type="text/css" href="./한샘몰 _ 한샘몰_files/popup.v.1.css"><!-- 공통 CSS -->
 <!-- 		<link rel="stylesheet" type="text/css" href="/resources/mo/css/app-reset.css"/> --><!-- 개별 CSS -->
 		<!-- 공통 스크립트 -->
 <!-- UI Landering -->
-<script>
+<script async="true" type="text/javascript" src="./한샘몰 _ 한샘몰_files/event" data-owner="criteo-tag"></script><script type="text/javascript" async="" src="./한샘몰 _ 한샘몰_files/js"></script><script type="text/javascript" async="" src="./한샘몰 _ 한샘몰_files/destination"></script><script src="./한샘몰 _ 한샘몰_files/568465993925864" async=""></script><script async="" src="./한샘몰 _ 한샘몰_files/fbevents.js"></script><script type="text/javascript" async="" src="./한샘몰 _ 한샘몰_files/analytics.js"></script><script type="text/javascript" async="" src="./한샘몰 _ 한샘몰_files/ld.js"></script><script type="text/javascript" async="" defer="" src="./한샘몰 _ 한샘몰_files/logger.min.js"></script><script type="text/javascript" src="./한샘몰 _ 한샘몰_files/wl6.js"></script><script async="" src="./한샘몰 _ 한샘몰_files/gtm.js"></script><script async="" src="./한샘몰 _ 한샘몰_files/analytics.js"></script><script>
 // akam-sw.js install script version 1.3.6
 "serviceWorker"in navigator&&"find"in[]&&function(){var e=new Promise(function(e){"complete"===document.readyState||!1?e():(window.addEventListener("load",function(){e()}),setTimeout(function(){"complete"!==document.readyState&&e()},1e4))}),n=window.akamServiceWorkerInvoked,r="1.3.6";if(n)aka3pmLog("akam-setup already invoked");else{window.akamServiceWorkerInvoked=!0,window.aka3pmLog=function(){window.akamServiceWorkerDebug&&console.log.apply(console,arguments)};function o(e){(window.BOOMR_mq=window.BOOMR_mq||[]).push(["addVar",{"sm.sw.s":e,"sm.sw.v":r}])}var i="/akam-sw.js",a=new Map;navigator.serviceWorker.addEventListener("message",function(e){var n,r,o=e.data;if(o.isAka3pm)if(o.command){var i=(n=o.command,(r=a.get(n))&&r.length>0?r.shift():null);i&&i(e.data.response)}else if(o.commandToClient)switch(o.commandToClient){case"enableDebug":window.akamServiceWorkerDebug||(window.akamServiceWorkerDebug=!0,aka3pmLog("Setup script debug enabled via service worker message"),v());break;case"boomerangMQ":o.payload&&(window.BOOMR_mq=window.BOOMR_mq||[]).push(o.payload)}aka3pmLog("akam-sw message: "+JSON.stringify(e.data))});var t=function(e){return new Promise(function(n){var r,o;r=e.command,o=n,a.has(r)||a.set(r,[]),a.get(r).push(o),navigator.serviceWorker.controller&&(e.isAka3pm=!0,navigator.serviceWorker.controller.postMessage(e))})},c=function(e){return t({command:"navTiming",navTiming:e})},s=null,m={},d=function(){var e=i;return s&&(e+="?othersw="+encodeURIComponent(s)),function(e,n){return new Promise(function(r,i){aka3pmLog("Registering service worker with URL: "+e),navigator.serviceWorker.register(e,n).then(function(e){aka3pmLog("ServiceWorker registration successful with scope: ",e.scope),r(e),o(1)}).catch(function(e){aka3pmLog("ServiceWorker registration failed: ",e),o(0),i(e)})})}(e,m)},g=navigator.serviceWorker.__proto__.register;if(navigator.serviceWorker.__proto__.register=function(n,r){return n.includes(i)?g.call(this,n,r):(aka3pmLog("Overriding registration of service worker for: "+n),s=new URL(n,window.location.href),m=r,navigator.serviceWorker.controller?new Promise(function(n,r){var o=navigator.serviceWorker.controller.scriptURL;if(o.includes(i)){var a=encodeURIComponent(s);o.includes(a)?(aka3pmLog("Cancelling registration as we already integrate other SW: "+s),navigator.serviceWorker.getRegistration().then(function(e){n(e)})):e.then(function(){aka3pmLog("Unregistering existing 3pm service worker"),navigator.serviceWorker.getRegistration().then(function(e){e.unregister().then(function(){return d()}).then(function(e){n(e)}).catch(function(e){r(e)})})})}else aka3pmLog("Cancelling registration as we already have akam-sw.js installed"),navigator.serviceWorker.getRegistration().then(function(e){n(e)})}):g.call(this,n,r))},navigator.serviceWorker.controller){var u=navigator.serviceWorker.controller.scriptURL;u.includes("/akam-sw.js")||u.includes("/akam-sw-preprod.js")||u.includes("/threepm-sw.js")||(aka3pmLog("Detected existing service worker. Removing and re-adding inside akam-sw.js"),s=new URL(u,window.location.href),e.then(function(){navigator.serviceWorker.getRegistration().then(function(e){m={scope:e.scope},e.unregister(),d()})}))}else e.then(function(){window.akamServiceWorkerPreprod&&(i="/akam-sw-preprod.js"),d()});if(window.performance){var w=window.performance.timing,l=w.responseEnd-w.responseStart;c(l)}e.then(function(){t({command:"pageLoad"})});var k=!1;function v(){window.akamServiceWorkerDebug&&!k&&(k=!0,aka3pmLog("Initializing debug functions at window scope"),window.aka3pmInjectSwPolicy=function(e){return t({command:"updatePolicy",policy:e})},window.aka3pmDisableInjectedPolicy=function(){return t({command:"disableInjectedPolicy"})},window.aka3pmDeleteInjectedPolicy=function(){return t({command:"deleteInjectedPolicy"})},window.aka3pmGetStateAsync=function(){return t({command:"getState"})},window.aka3pmDumpState=function(){aka3pmGetStateAsync().then(function(e){aka3pmLog(JSON.stringify(e,null,"\t"))})},window.aka3pmInjectTiming=function(e){return c(e)},window.aka3pmUpdatePolicyFromNetwork=function(){return t({command:"pullPolicyFromNetwork"})})}v()}}();</script>
-<script type="text/javascript" src="./hanssem_files/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="./hanssem_files/jquery-ui.min.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/jquery-ui.min.js"></script>
 
 
-<script type="text/javascript" src="./hanssem_files/ui.libs.js"></script>
-<script type="text/javascript" src="./hanssem_files/ui.common.js"></script>
-<script type="text/javascript" src="./hanssem_files/ui.lazyload.js"></script>
-<script type="text/javascript" src="./hanssem_files/appLaunch.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/ui.libs.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/ui.common.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/ui.lazyload.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/appLaunch.js"></script>
 <!-- common js -->
-<script type="text/javascript" src="./hanssem_files/common.js"></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/common.js"></script>
 
 <!-- deffer 구간 -->
-<script defer="" type="text/javascript" src="./hanssem_files/jquery.cookie.js"></script>
-<script defer="" type="text/javascript" src="./hanssem_files/paramValidate.js"></script>
+<script defer="" type="text/javascript" src="./한샘몰 _ 한샘몰_files/jquery.cookie.js"></script>
+<script defer="" type="text/javascript" src="./한샘몰 _ 한샘몰_files/paramValidate.js"></script>
 <!-- jQuery form 2022.05.12 min 파일로 변경 M.Park For PageSpeed Guide-->
-<script defer="" type="text/javascript" src="./hanssem_files/jquery.form.min.js"></script>
+<script defer="" type="text/javascript" src="./한샘몰 _ 한샘몰_files/jquery.form.min.js"></script>
 
 <!-- 레코벨 API -->
-<script defer="" type="text/javascript" src="./hanssem_files/recobell.js"></script>
+<script defer="" type="text/javascript" src="./한샘몰 _ 한샘몰_files/recobell.js"></script>
 
 <!-- 로그인 유지시간(6시간) 이 지나면 자동 로그아웃 처리 (2016.12.08 김동진) -->
 <script type="text/javascript">
@@ -307,32 +166,32 @@
 <!-- 20200609 와이즈로그 신규 스크립트 시작 -->
 <!-- 20200609 와이즈로그 신규 스크립트 끝 -->
 
-<!-- chrome(크롬) 정책 변경에 따른 referrer(레퍼러) 삭제되는 현상 수정 2021.02.26 신호섭 (MALLDVLPRJ-1244) -->
-<meta name="referrer" content="always">
-<script type="text/javascript" src="./hanssem_files/ui.page.main.js"></script>
-		<script type="text/javascript" src="./hanssem_files/disp.common.js"></script><!-- 모바일 전시 컴포넌트 관련 스크립트 모음 -->
+<!-- Google Analytics -->
+<meta name="google-site-verification" content="QSLLjT8VUk6LKPbS_5AkP8yOXnb33SLwD3uKMScpOaQ">
 
-	<script type="text/javascript" src="./hanssem_files/sdk.js"></script><script charset="UTF-8" src="./hanssem_files/kakao.js"></script><script charset="UTF-8" src="./hanssem_files/services.js"></script>
-		
-<script>(window.BOOMR_mq=window.BOOMR_mq||[]).push(["addVar",{"rua.upush":"false","rua.cpush":"true","rua.upre":"false","rua.cpre":"false","rua.uprl":"false","rua.cprl":"false","rua.cprf":"false","rua.trans":"SJ-dc784d6d-4fb1-4967-adc5-121b88851ce0","rua.cook":"false","rua.ims":"false","rua.ufprl":"false","rua.cfprl":"true","rua.isuxp":"false","rua.texp":"norulematch"}]);</script>
-                              <script>!function(e){var n="https://s.go-mpulse.net/boomerang/";if("True"=="True")e.BOOMR_config=e.BOOMR_config||{},e.BOOMR_config.PageParams=e.BOOMR_config.PageParams||{},e.BOOMR_config.PageParams.pci=!0,n="https://s2.go-mpulse.net/boomerang/";if(window.BOOMR_API_key="SFZ9D-HPRT3-S86RG-QJ876-7M5BZ",function(){function e(){if(!o){var e=document.createElement("script");e.id="boomr-scr-as",e.src=window.BOOMR.url,e.async=!0,i.parentNode.appendChild(e),o=!0}}function t(e){o=!0;var n,t,a,r,d=document,O=window;if(window.BOOMR.snippetMethod=e?"if":"i",t=function(e,n){var t=d.createElement("script");t.id=n||"boomr-if-as",t.src=window.BOOMR.url,BOOMR_lstart=(new Date).getTime(),e=e||d.body,e.appendChild(t)},!window.addEventListener&&window.attachEvent&&navigator.userAgent.match(/MSIE [67]\./))return window.BOOMR.snippetMethod="s",void t(i.parentNode,"boomr-async");a=document.createElement("IFRAME"),a.src="about:blank",a.title="",a.role="presentation",a.loading="eager",r=(a.frameElement||a).style,r.width=0,r.height=0,r.border=0,r.display="none",i.parentNode.appendChild(a);try{O=a.contentWindow,d=O.document.open()}catch(_){n=document.domain,a.src="javascript:var d=document.open();d.domain='"+n+"';void(0);",O=a.contentWindow,d=O.document.open()}if(n)d._boomrl=function(){this.domain=n,t()},d.write("<bo"+"dy onload='document._boomrl();'>");else if(O._boomrl=function(){t()},O.addEventListener)O.addEventListener("load",O._boomrl,!1);else if(O.attachEvent)O.attachEvent("onload",O._boomrl);d.close()}function a(e){window.BOOMR_onload=e&&e.timeStamp||(new Date).getTime()}if(!window.BOOMR||!window.BOOMR.version&&!window.BOOMR.snippetExecuted){window.BOOMR=window.BOOMR||{},window.BOOMR.snippetStart=(new Date).getTime(),window.BOOMR.snippetExecuted=!0,window.BOOMR.snippetVersion=12,window.BOOMR.url=n+"SFZ9D-HPRT3-S86RG-QJ876-7M5BZ";var i=document.currentScript||document.getElementsByTagName("script")[0],o=!1,r=document.createElement("link");if(r.relList&&"function"==typeof r.relList.supports&&r.relList.supports("preload")&&"as"in r)window.BOOMR.snippetMethod="p",r.href=window.BOOMR.url,r.rel="preload",r.as="script",r.addEventListener("load",e),r.addEventListener("error",function(){t(!0)}),setTimeout(function(){if(!o)t(!0)},3e3),BOOMR_lstart=(new Date).getTime(),i.parentNode.appendChild(r);else t(!1);if(window.addEventListener)window.addEventListener("load",a,!1);else if(window.attachEvent)window.attachEvent("onload",a)}}(),"".length>0)if(e&&"performance"in e&&e.performance&&"function"==typeof e.performance.setResourceTimingBufferSize)e.performance.setResourceTimingBufferSize();!function(){if(BOOMR=e.BOOMR||{},BOOMR.plugins=BOOMR.plugins||{},!BOOMR.plugins.AK){var n="true"=="true"?1:0,t="",a="q3xbmu5yk7ayyzaxzgcq-f-a934e9bf1-clientnsv4-s.akamaihd.net",i="false"=="true"?2:1,o={"ak.v":"34","ak.cp":"1162739","ak.ai":parseInt("693481",10),"ak.ol":"0","ak.cr":79,"ak.ipv":4,"ak.proto":"h2","ak.rid":"5e95c6d","ak.r":45208,"ak.a2":n,"ak.m":"","ak.n":"ff","ak.bpcip":"134.238.22.0","ak.cport":23076,"ak.gh":"184.85.101.140","ak.quicv":"","ak.tlsv":"tls1.3","ak.0rtt":"","ak.csrc":"-","ak.acc":"","ak.t":"1679280517","ak.ak":"hOBiQwZUYzCg5VSAfCLimQ==uV+qtpFfYkix1o/n4asN7f4wsr5bpoPHPsUkKN155i/PUj+udVrLXrVP0MYHCP1CHZKkpSs5CcZYI0g5GF1APS4wXbyR4TwcmkiBA3SbFrNbcXlRrqUPTcAcDM4sV1/mhe1zfWy9vzxug17RntznhNsgSLzcqsldTgsPFlKEXKjae3B5+dnshMf7Y5QmA7AVV9J6/dPom/Or/Pq7bIE2qKzhXx2t0K24HAhObmNepXK4BV7mU3eItw/hyZuKXNBcZuVVhl2Z22FpFjUFHeKzDz2qIuxYspJOZcrf9ts3ADzeQN06WnLkxv8CKR/anpvRAOGBVtOqGNAsNblmZmOoXBzMY7Fk3DY7JBWsjtlFWlgHS/llQhl8v1UsPcz8ckwRiI1LWXQ5a/5b9HwsjC39d6PAgnykihiKVrrTeY+zwyE=","ak.pv":"80","ak.dpoabenc":"","ak.tf":i};if(""!==t)o["ak.ruds"]=t;var r={i:!1,av:function(n){var t="http.initiator";if(n&&(!n[t]||"spa_hard"===n[t]))o["ak.feo"]=void 0!==e.aFeoApplied?1:0,BOOMR.addVar(o)},rv:function(){var e=["ak.bpcip","ak.cport","ak.cr","ak.csrc","ak.gh","ak.ipv","ak.m","ak.n","ak.ol","ak.proto","ak.quicv","ak.tlsv","ak.0rtt","ak.r","ak.acc","ak.t","ak.tf"];BOOMR.removeVar(e)}};BOOMR.plugins.AK={akVars:o,akDNSPreFetchDomain:a,init:function(){if(!r.i){var e=BOOMR.subscribe;e("before_beacon",r.av,null,null),e("onbeacon",r.rv,null,null),r.i=!0}return this},is_complete:function(){return!0}}}}()}(window);</script><link href="./hanssem_files/SFZ9D-HPRT3-S86RG-QJ876-7M5BZ" rel="preload" as="script"><script id="boomr-scr-as" src="./hanssem_files/SFZ9D-HPRT3-S86RG-QJ876-7M5BZ" async=""></script><meta http-equiv="origin-trial" content="A751Xsk4ZW3DVQ8WZng2Dk5s3YzAyqncTzgv+VaE6wavgTY0QHkDvUTET1o7HanhuJO8lgv1Vvc88Ij78W1FIAAAAAB7eyJvcmlnaW4iOiJodHRwczovL3d3dy5nb29nbGV0YWdtYW5hZ2VyLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjgwNjUyNzk5LCJpc1RoaXJkUGFydHkiOnRydWV9"><script type="text/javascript" async="" src="./hanssem_files/f.txt"></script><meta http-equiv="origin-trial" content="A751Xsk4ZW3DVQ8WZng2Dk5s3YzAyqncTzgv+VaE6wavgTY0QHkDvUTET1o7HanhuJO8lgv1Vvc88Ij78W1FIAAAAAB7eyJvcmlnaW4iOiJodHRwczovL3d3dy5nb29nbGV0YWdtYW5hZ2VyLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjgwNjUyNzk5LCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A9+ldib+sKhGj2FcIjq5GnvBZFuIiXID0+NkE6k7cEk71MhaHFGqo3wUlUFmZ6d9w0KPwx9UxGiCTYWtRnTGDQkAAACAeyJvcmlnaW4iOiJodHRwczovL2NyaXRlby5uZXQ6NDQzIiwiZmVhdHVyZSI6IlByaXZhY3lTYW5kYm94QWRzQVBJcyIsImV4cGlyeSI6MTY4MDY1Mjc5OSwiaXNTdWJkb21haW4iOnRydWUsImlzVGhpcmRQYXJ0eSI6dHJ1ZX0="><meta http-equiv="origin-trial" content="AzLNuh8GFzfIOcwvhEg7Ymr7YCzlYVTKeD7i2iETABbRf+sL2FAx+r+HlTtxSi1zgUFxBlJVoxgLjuhqiwTjAw4AAACAeyJvcmlnaW4iOiJodHRwczovL2NyaXRlby5jb206NDQzIiwiZmVhdHVyZSI6IlByaXZhY3lTYW5kYm94QWRzQVBJcyIsImV4cGlyeSI6MTY4MDY1Mjc5OSwiaXNTdWJkb21haW4iOnRydWUsImlzVGhpcmRQYXJ0eSI6dHJ1ZX0=">
-
-<!-- Google Tag Manager -->
 <script>
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TDNQ9W4');
-</script>
-<!-- End Google Tag Manager -->
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TDNQ9W4" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-</head>
+var gaCode = 'UA-70603704-2';
+if (deviceChannel == 'MOAPP' || navigator.userAgent.indexOf("HSApp")!=-1) {
+    gaCode = 'UA-70603704-4';
+}
+
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', gaCode, 'auto');
+</script><!-- chrome(크롬) 정책 변경에 따른 referrer(레퍼러) 삭제되는 현상 수정 2021.02.26 신호섭 (MALLDVLPRJ-1244) -->
+<meta name="referrer" content="always">
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/ui.page.main.js"></script>
+		<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/disp.common.js"></script><!-- 모바일 전시 컴포넌트 관련 스크립트 모음 -->
+
+	<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/sdk.js"></script><script charset="UTF-8" src="./한샘몰 _ 한샘몰_files/kakao.js"></script><script charset="UTF-8" src="./한샘몰 _ 한샘몰_files/services.js"></script>
+		
+<script>(window.BOOMR_mq=window.BOOMR_mq||[]).push(["addVar",{"rua.upush":"false","rua.cpush":"true","rua.upre":"false","rua.cpre":"false","rua.uprl":"false","rua.cprl":"false","rua.cprf":"false","rua.trans":"SJ-367c31cf-99c6-4ec2-b6b7-c8c5c02f4595","rua.cook":"false","rua.ims":"true","rua.ufprl":"false","rua.cfprl":"true","rua.isuxp":"false","rua.texp":"norulematch"}]);</script>
+                              <script>!function(e){var n="https://s.go-mpulse.net/boomerang/";if("True"=="True")e.BOOMR_config=e.BOOMR_config||{},e.BOOMR_config.PageParams=e.BOOMR_config.PageParams||{},e.BOOMR_config.PageParams.pci=!0,n="https://s2.go-mpulse.net/boomerang/";if(window.BOOMR_API_key="SFZ9D-HPRT3-S86RG-QJ876-7M5BZ",function(){function e(){if(!o){var e=document.createElement("script");e.id="boomr-scr-as",e.src=window.BOOMR.url,e.async=!0,i.parentNode.appendChild(e),o=!0}}function t(e){o=!0;var n,t,a,r,d=document,O=window;if(window.BOOMR.snippetMethod=e?"if":"i",t=function(e,n){var t=d.createElement("script");t.id=n||"boomr-if-as",t.src=window.BOOMR.url,BOOMR_lstart=(new Date).getTime(),e=e||d.body,e.appendChild(t)},!window.addEventListener&&window.attachEvent&&navigator.userAgent.match(/MSIE [67]\./))return window.BOOMR.snippetMethod="s",void t(i.parentNode,"boomr-async");a=document.createElement("IFRAME"),a.src="about:blank",a.title="",a.role="presentation",a.loading="eager",r=(a.frameElement||a).style,r.width=0,r.height=0,r.border=0,r.display="none",i.parentNode.appendChild(a);try{O=a.contentWindow,d=O.document.open()}catch(_){n=document.domain,a.src="javascript:var d=document.open();d.domain='"+n+"';void(0);",O=a.contentWindow,d=O.document.open()}if(n)d._boomrl=function(){this.domain=n,t()},d.write("<bo"+"dy onload='document._boomrl();'>");else if(O._boomrl=function(){t()},O.addEventListener)O.addEventListener("load",O._boomrl,!1);else if(O.attachEvent)O.attachEvent("onload",O._boomrl);d.close()}function a(e){window.BOOMR_onload=e&&e.timeStamp||(new Date).getTime()}if(!window.BOOMR||!window.BOOMR.version&&!window.BOOMR.snippetExecuted){window.BOOMR=window.BOOMR||{},window.BOOMR.snippetStart=(new Date).getTime(),window.BOOMR.snippetExecuted=!0,window.BOOMR.snippetVersion=12,window.BOOMR.url=n+"SFZ9D-HPRT3-S86RG-QJ876-7M5BZ";var i=document.currentScript||document.getElementsByTagName("script")[0],o=!1,r=document.createElement("link");if(r.relList&&"function"==typeof r.relList.supports&&r.relList.supports("preload")&&"as"in r)window.BOOMR.snippetMethod="p",r.href=window.BOOMR.url,r.rel="preload",r.as="script",r.addEventListener("load",e),r.addEventListener("error",function(){t(!0)}),setTimeout(function(){if(!o)t(!0)},3e3),BOOMR_lstart=(new Date).getTime(),i.parentNode.appendChild(r);else t(!1);if(window.addEventListener)window.addEventListener("load",a,!1);else if(window.attachEvent)window.attachEvent("onload",a)}}(),"".length>0)if(e&&"performance"in e&&e.performance&&"function"==typeof e.performance.setResourceTimingBufferSize)e.performance.setResourceTimingBufferSize();!function(){if(BOOMR=e.BOOMR||{},BOOMR.plugins=BOOMR.plugins||{},!BOOMR.plugins.AK){var n="true"=="true"?1:0,t="",a="q3xbmu5yk7auszazjpua-f-db50a2a12-clientnsv4-s.akamaihd.net",i="false"=="true"?2:1,o={"ak.v":"34","ak.cp":"1162739","ak.ai":parseInt("693481",10),"ak.ol":"0","ak.cr":78,"ak.ipv":4,"ak.proto":"h2","ak.rid":"57ba2939","ak.r":45207,"ak.a2":n,"ak.m":"","ak.n":"ff","ak.bpcip":"134.238.22.0","ak.cport":56748,"ak.gh":"184.85.101.73","ak.quicv":"","ak.tlsv":"tls1.3","ak.0rtt":"","ak.csrc":"-","ak.acc":"","ak.t":"1679379432","ak.ak":"hOBiQwZUYzCg5VSAfCLimQ==rBc1Hung0QQfiTD1ZLcpZRzXOVxmJMX8vEybqCzy3jnww+eAoRZl2zREgzY+WqXLznMnZ1tgkf+TV1rq9AyXl7V36DU9Pnt0EyRbnzomiF6XHHaMcgv+C6y2hNqRBX0s3Z2XoIsvLN9g8Y1Qf3oClOz4KOKG6K8Ai+WMxw1hsxG+cR5jZmlt8sa9BxoxR+89AXIseRk08kVmPt1X1CRP6FOsJ1h1knO72/RqNot9hdua6rNeOC76GrMI/lkJqpfUs31A0G9w5HSHUolX1dx9YPPKCsx/OduaHXRt8GT7FDjFt75/DjkpzKjvwvOpGCJE9z81Voi2DQVF/ldOAJQ7044yakneI9WY1gK514NHrG+h+cAmiu5YZlhX4TKm/O5pvVzrLMjRujz2Hvm5w5JXRJWeXaQYsKUXzneeCxqwogg=","ak.pv":"80","ak.dpoabenc":"","ak.tf":i};if(""!==t)o["ak.ruds"]=t;var r={i:!1,av:function(n){var t="http.initiator";if(n&&(!n[t]||"spa_hard"===n[t]))o["ak.feo"]=void 0!==e.aFeoApplied?1:0,BOOMR.addVar(o)},rv:function(){var e=["ak.bpcip","ak.cport","ak.cr","ak.csrc","ak.gh","ak.ipv","ak.m","ak.n","ak.ol","ak.proto","ak.quicv","ak.tlsv","ak.0rtt","ak.r","ak.acc","ak.t","ak.tf"];BOOMR.removeVar(e)}};BOOMR.plugins.AK={akVars:o,akDNSPreFetchDomain:a,init:function(){if(!r.i){var e=BOOMR.subscribe;e("before_beacon",r.av,null,null),e("onbeacon",r.rv,null,null),r.i=!0}return this},is_complete:function(){return!0}}}}()}(window);</script><link href="./한샘몰 _ 한샘몰_files/SFZ9D-HPRT3-S86RG-QJ876-7M5BZ" rel="preload" as="script"><script id="boomr-scr-as" src="./한샘몰 _ 한샘몰_files/SFZ9D-HPRT3-S86RG-QJ876-7M5BZ" async=""></script><meta http-equiv="origin-trial" content="A751Xsk4ZW3DVQ8WZng2Dk5s3YzAyqncTzgv+VaE6wavgTY0QHkDvUTET1o7HanhuJO8lgv1Vvc88Ij78W1FIAAAAAB7eyJvcmlnaW4iOiJodHRwczovL3d3dy5nb29nbGV0YWdtYW5hZ2VyLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjgwNjUyNzk5LCJpc1RoaXJkUGFydHkiOnRydWV9"><script type="text/javascript" async="" src="./한샘몰 _ 한샘몰_files/f.txt"></script><meta http-equiv="origin-trial" content="A751Xsk4ZW3DVQ8WZng2Dk5s3YzAyqncTzgv+VaE6wavgTY0QHkDvUTET1o7HanhuJO8lgv1Vvc88Ij78W1FIAAAAAB7eyJvcmlnaW4iOiJodHRwczovL3d3dy5nb29nbGV0YWdtYW5hZ2VyLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjgwNjUyNzk5LCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A9+ldib+sKhGj2FcIjq5GnvBZFuIiXID0+NkE6k7cEk71MhaHFGqo3wUlUFmZ6d9w0KPwx9UxGiCTYWtRnTGDQkAAACAeyJvcmlnaW4iOiJodHRwczovL2NyaXRlby5uZXQ6NDQzIiwiZmVhdHVyZSI6IlByaXZhY3lTYW5kYm94QWRzQVBJcyIsImV4cGlyeSI6MTY4MDY1Mjc5OSwiaXNTdWJkb21haW4iOnRydWUsImlzVGhpcmRQYXJ0eSI6dHJ1ZX0="><meta http-equiv="origin-trial" content="AzLNuh8GFzfIOcwvhEg7Ymr7YCzlYVTKeD7i2iETABbRf+sL2FAx+r+HlTtxSi1zgUFxBlJVoxgLjuhqiwTjAw4AAACAeyJvcmlnaW4iOiJodHRwczovL2NyaXRlby5jb206NDQzIiwiZmVhdHVyZSI6IlByaXZhY3lTYW5kYm94QWRzQVBJcyIsImV4cGlyeSI6MTY4MDY1Mjc5OSwiaXNTdWJkb21haW4iOnRydWUsImlzVGhpcmRQYXJ0eSI6dHJ1ZX0="></head>
 	
-
-
-<body class="app-V3" onload="" style="margin-top: 0px;">
-
-
-		<div class="m-dim" style="z-index: 1002; display: block;"></div>
+	<body class="app-V3" onload="">
+		<div class="m-dim"></div>
 
 		<!-- loading -->
 		<div class="loading" id="js-loading" style="display:none;">로딩중</div>
@@ -381,7 +240,7 @@
 			<li class="item">
 				
 				<a href="https://mall.hanssem.com/m/mall.html?module=deal&amp;snb=ssem&amp;wlp=31796303">
-					<img src="./hanssem_files/1676355990835_11387_0.png">
+					<img src="./한샘몰 _ 한샘몰_files/1676355990835_11387_0.png">
 					특가
 				</a>
 			</li>
@@ -389,7 +248,7 @@
 			<li class="item">
 				
 				<a href="https://m.remodeling.hanssem.com/untact-consult?wlp=31796303">
-					<img src="./hanssem_files/1676355984103_11387_0.png">
+					<img src="./한샘몰 _ 한샘몰_files/1676355984103_11387_0.png">
 					언택트<br>3D제안서
 				</a>
 			</li>
@@ -397,7 +256,7 @@
 			<li class="item">
 				
 				<a href="https://m.remodeling.hanssem.com/shop/main-search?wlp=31796303">
-					<img src="./hanssem_files/1676355976997_11387_0.png">
+					<img src="./한샘몰 _ 한샘몰_files/1676355976997_11387_0.png">
 					통합매장찾기
 				</a>
 			</li>
@@ -405,7 +264,7 @@
 			<li class="item">
 				
 				<a href="https://mall.hanssem.com/m/msamLive/samLiveMain.do?wlp=31796303">
-					<img src="./hanssem_files/1676290365023_11387_0.png">
+					<img src="./한샘몰 _ 한샘몰_files/1676290365023_11387_0.png">
 					샘LIVE
 				</a>
 			</li>
@@ -496,7 +355,7 @@ let createMenu = function(_mallType) {
 				if ( menuInfo.menuType == "TEMP" ) return true;
 				
 				let mallTypeParam = "MallType=" + menuInfo.mallType;
-
+				mallTypeParam += "&hsa_prev=hamburger"; // 통합몰 햄버거 중카테고리 및 홈아이디어 메뉴 파라미터 셋팅(HF-1321) 2023.03.20 김대오
 				$.each(menuInfo.grpCtgList, function (idx, cateInfo) {
 					let menuHtml = "<div class='cate-2dep' id='L" + cateInfo.ctgNo + "'>";
 					if ( cateInfo.ctgList || cateInfo.subMenuDataList ) {
@@ -590,7 +449,7 @@ function openLeftMenu() {
 <!-- // [공통] 좌측 전체메뉴 --><!-- END:LEFT Area -->
 
 		<!-- START:MAIN Area -->
-		<link rel="stylesheet" type="text/css" href="./hanssem_files/main.v.1.css"><!-- 개별 CSS -->
+		<link rel="stylesheet" type="text/css" href="./한샘몰 _ 한샘몰_files/main.v.1.css"><!-- 개별 CSS -->
 <script type="text/javascript">
 	Common.setCookie('mallType', "MAIN", 1);
 	let mallType = "MAIN";
@@ -640,10 +499,10 @@ function openLeftMenu() {
 				<ul class="gatebn-sld-view list-wrap">
 					
 						<li class="gatebn-sld-list" style="transition-duration: 0s; margin: auto auto auto 0px; z-index: 1; position: absolute; top: 0px; left: 300%;">
-							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -715px;">
+							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -699px;">
 							
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16274&amp;wlp=33797293">
-									<div class="gatebn-img"><img src="./hanssem_files/1678853000526_14137_0.jpg"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678853000526_14137_0.jpg"></div>
 								</a>
 							</div>
 							<div class="gatebn-txt">
@@ -652,50 +511,11 @@ function openLeftMenu() {
 							</div>
 						</li>
 					
-						<li class="gatebn-sld-list" style="top: 0px; left: 300%; transition-duration: 0s; margin: auto auto auto 0px; z-index: 1; position: absolute;">
-							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -715px;">
-							
-								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16326&amp;wlp=33797293">
-									<div class="gatebn-img"><img src="./hanssem_files/1679037903271_14137_0.jpg"></div>
-								</a>
-							</div>
-							<div class="gatebn-txt">
-								<div class="gatebn-tit">디자인파크 송파점<br>GRAND OPEN</div>
-								<div class="gatebn-sub"><p>100명 한정, 사전 예약 혜택</p></div>
-							</div>
-						</li>
-					
-						<li class="gatebn-sld-list" style="margin: auto; top: 0px; left: 300%; transition-duration: 0s; z-index: 1; position: absolute;">
-							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -715px;">
-							
-								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16105&amp;wlp=33797293">
-									<div class="gatebn-img"><img src="./hanssem_files/1678840597390_14137_0.jpg" class=" js-lazy--end"></div>
-								</a>
-							</div>
-							<div class="gatebn-txt">
-								<div class="gatebn-tit">WEDDING<br>FESTA</div>
-								<div class="gatebn-sub">30만원 즉시할인 + 2천만원 사은품</div>
-							</div>
-						</li>
-					
-						<li class="gatebn-sld-list onimg" style="margin: auto; top: auto; left: auto; transition-duration: 0s; z-index: 1; position: relative;">
-							<div class="gatebn-list" style="transition-duration: 1s; margin-left: 0px;">
-							
-								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16155&amp;wlp=33797293">
-									<div class="gatebn-img"><img src="./hanssem_files/1678953759766_14112_0.jpg" class=" js-lazy--end"></div>
-								</a>
-							</div>
-							<div class="gatebn-txt">
-								<div class="gatebn-tit">내가 그리는<br>나만의 공간</div>
-								<div class="gatebn-sub"><p>한샘 레이어드 소파</p></div>
-							</div>
-						</li>
-					
-						<li class="gatebn-sld-list" style="margin: auto auto auto 0px; top: 0px; left: 300%; transition-duration: 0s; z-index: 1; position: absolute;">
-							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -715px;">
+						<li class="gatebn-sld-list" style="top: 0px; left: 300%; transition-duration: 0s; margin: auto; z-index: 1; position: absolute;">
+							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -699px;">
 							
 								<a href="https://m.remodeling.hanssem.com/event/16301?eventStatusType=ING&amp;wlp=33797293">
-									<div class="gatebn-img"><img src="./hanssem_files/1678929951929_14112_0.jpg" class=" js-lazy--end"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678929951929_14112_0.jpg"></div>
 								</a>
 							</div>
 							<div class="gatebn-txt">
@@ -704,11 +524,50 @@ function openLeftMenu() {
 							</div>
 						</li>
 					
-						<li class="gatebn-sld-list" style="margin: auto auto auto 0px; top: 0px; left: 300%; transition-duration: 0s; z-index: 1; position: absolute;">
-							<div class="gatebn-list" style="transition-duration: 0s; margin-left: -715px;">
+						<li class="gatebn-sld-list onimg" style="margin: auto; top: auto; left: auto; transition-duration: 0s; z-index: 1; position: relative;">
+							<div class="gatebn-list" style="transition-duration: 1s; margin-left: 0px;">
+							
+								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16326&amp;wlp=33797293">
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1679037903271_14137_0.jpg" class=" js-lazy--end"></div>
+								</a>
+							</div>
+							<div class="gatebn-txt">
+								<div class="gatebn-tit">디자인파크 송파점<br>GRAND OPEN</div>
+								<div class="gatebn-sub"><p>100명 한정, 사전 예약 혜택</p></div>
+							</div>
+						</li>
+					
+						<li class="gatebn-sld-list" style="margin-left: 0px;">
+							<div class="gatebn-list">
+							
+								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16155&amp;wlp=33797293">
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678953759766_14112_0.jpg" class="js-lazy"></div>
+								</a>
+							</div>
+							<div class="gatebn-txt">
+								<div class="gatebn-tit">내가 그리는<br>나만의 공간</div>
+								<div class="gatebn-sub"><p>한샘 레이어드 소파</p></div>
+							</div>
+						</li>
+					
+						<li class="gatebn-sld-list" style="margin-left: 0px;">
+							<div class="gatebn-list">
+							
+								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16105&amp;wlp=33797293">
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678840597390_14137_0.jpg" class="js-lazy"></div>
+								</a>
+							</div>
+							<div class="gatebn-txt">
+								<div class="gatebn-tit">WEDDING<br>FESTA</div>
+								<div class="gatebn-sub">30만원 즉시할인 + 2천만원 사은품</div>
+							</div>
+						</li>
+					
+						<li class="gatebn-sld-list" style="margin-left: 0px;">
+							<div class="gatebn-list">
 							
 								<a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=22025&amp;wlp=33797293">
-									<div class="gatebn-img"><img src="./hanssem_files/1679038131583_14137_0.jpg" class=" js-lazy--end"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1679038131583_14137_0.jpg" class="js-lazy"></div>
 								</a>
 							</div>
 							<div class="gatebn-txt">
@@ -721,9 +580,9 @@ function openLeftMenu() {
 			</div>
 			<a href="javascript:;" class="gatebn-sld-prev ctr-btn"></a>
 			<a href="javascript:;" class="gatebn-sld-next ctr-btn"></a>
-			<div class="gatebn-sld-btns ctr-btn"><span class=""></span><span class=""></span><span class=""></span><span class="on"></span></div>
-			<div class="gate-proc"><div class="bars" style="width: 66.6667%;"></div></div>
-			<div class="sld_cnt_num"><strong class="cnts_num">4</strong>/<span class="cnts_tot">6</span></div>
+			<div class="gatebn-sld-btns ctr-btn"><span class=""></span><span class=""></span><span class="on"></span><span class=""></span></div>
+			<div class="gate-proc"><div class="bars" style="width: 50%;"></div></div>
+			<div class="sld_cnt_num"><strong class="cnts_num">3</strong>/<span class="cnts_tot">6</span></div>
 			<div class="pause-btns"></div>
 		</div>
 	</div>
@@ -738,27 +597,27 @@ function openLeftMenu() {
 		<ul class="icon-banner-homeidea double-touch">
 			<li>
 					<a href="https://m.remodeling.hanssem.com/untact-consult?wlp=33797294">
-						<img src="./hanssem_files/1676976653923_11387_0.png" onerror="onErrorImg(this)">
+						<img src="./한샘몰 _ 한샘몰_files/1676976653923_11387_0.png" onerror="onErrorImg(this)">
 						언택트<br>3D제안서</a>
 				</li>
 			<li>
 					<a href="https://mall.hanssem.com/m/mall.html?module=deal&amp;snb=ssem&amp;wlp=33797294">
-						<img src="./hanssem_files/1676976686963_11387_0.png" onerror="onErrorImg(this)">
+						<img src="./한샘몰 _ 한샘몰_files/1676976686963_11387_0.png" onerror="onErrorImg(this)">
 						특가</a>
 				</li>
 			<li>
 					<a href="https://mall.hanssem.com/m/homeidea.html?module=apartment&amp;wlp=33797294">
-						<img src="./hanssem_files/1676976714468_11387_0.png" class="js-lazy" onerror="onErrorImg(this)">
+						<img src="./한샘몰 _ 한샘몰_files/1676976714468_11387_0.png" class="js-lazy" onerror="onErrorImg(this)">
 						아파트로<br>찾기</a>
 				</li>
 			<li>
 					<a href="https://mall.hanssem.com/m/msamLive/samLiveMain.do?wlp=33797294">
-						<img src="./hanssem_files/1676976739453_11387_0.png" class="js-lazy" onerror="onErrorImg(this)">
+						<img src="./한샘몰 _ 한샘몰_files/1676976739453_11387_0.png" class="js-lazy" onerror="onErrorImg(this)">
 						샘LIVE</a>
 				</li>
 			<li>
 					<a href="https://m.remodeling.hanssem.com/shop/main-search?wlp=33797294">
-						<img src="./hanssem_files/1676976768724_11387_0.png" class="js-lazy" onerror="onErrorImg(this)">
+						<img src="./한샘몰 _ 한샘몰_files/1676976768724_11387_0.png" class="js-lazy" onerror="onErrorImg(this)">
 						매장찾기</a>
 				</li>
 			</ul>
@@ -787,28 +646,28 @@ function openLeftMenu() {
 						<li class="hsm-swipe-list" style="display: none; left: 200%;">
 							
 							<a href="https://mall.hanssem.com/m/mall.html?module=ssem&amp;snb=remodeling&amp;wlp=33797295">
-								<img src="./hanssem_files/1678925570469_11732_0.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1678925570469_11732_0.jpg" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
 						<li class="hsm-swipe-list on" style="left: 0px; display: block;">
 							
 							<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16075&amp;wlp=33797295">
-								<img src="./hanssem_files/1678858341051_14112_0.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1678858341051_14112_0.jpg" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
 						<li class="hsm-swipe-list" style="display: none; left: 100%;">
 							
 							<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=15181&amp;wlp=33797295">
-								<img src="./hanssem_files/1678858600181_14112_0.jpg" class="js-lazy" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1678858600181_14112_0.jpg" class="js-lazy" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
 						<li class="hsm-swipe-list" style="display: none; left: 200%;">
 							
 							<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=14960&amp;wlp=33797295">
-								<img src="./hanssem_files/1678940370124_14137_0.jpg" class="js-lazy" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1678940370124_14137_0.jpg" class="js-lazy" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
@@ -831,15 +690,15 @@ function openLeftMenu() {
 						<div class="timer-wrap timer" id="timer-4375796" data-timer-end-time="2023-03-23 09:59:59">
 							<p class="day-wrap div_day4375796">
 								<span class="txt">D-</span>
-								<span class="day">2</span>
+								<span class="day">1</span>
 							</p>
 							
 							<p class="time-wrap div_time4375796" style="display: none;">
-								<span class="hour">22</span>
+								<span class="hour">18</span>
 								<span class="txt">:</span>
-								<span class="minute">08</span>
+								<span class="minute">42</span>
 								<span class="txt">:</span>
-								<span class="second">34</span>
+								<span class="second">16</span>
 							</p>
 							<span class="flag-time div_time4375796" style="display: none;">시간임박</span>
 						</div>
@@ -849,7 +708,7 @@ function openLeftMenu() {
 													<div class="prd-img">
 														<div class="thumb">
 															<a href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=865076&amp;wlp=33797296">
-																<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/865/865076_A1.jpg?v=20230320105953" alt="[쌤페스타] 한샘 도노 어반 세라믹 식탁세트 6인용(슬림의자4 포함)" onerror="onErrorImg(this)">
+																<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/865/865076_A1.jpg?v=20230320105953" alt="[쌤페스타] 한샘 도노 어반 세라믹 식탁세트 6인용(슬림의자4 포함)" onerror="onErrorImg(this)">
 															</a>
 														</div>
 													</div>
@@ -889,7 +748,7 @@ function openLeftMenu() {
 													<div class="prd-img">
 														<div class="thumb">
 															<a href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=799220&amp;wlp=33797296">
-																<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/799/799220_A1.jpg?v=20230208154900" alt="[쌤페스타] 한샘 엠마 컴포트 천연면피가죽 4인용 소파(3종/택1)" onerror="onErrorImg(this)">
+																<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/799/799220_A1.jpg?v=20230208154900" alt="[쌤페스타] 한샘 엠마 컴포트 천연면피가죽 4인용 소파(3종/택1)" onerror="onErrorImg(this)">
 															</a>
 														</div>
 													</div>
@@ -919,7 +778,7 @@ function openLeftMenu() {
 												
 														<div class="prd-opt">
 															<span class="prd-opt-score">4.7</span>
-															<span class="prd-opt-reply">438</span>
+															<span class="prd-opt-reply">439</span>
 														</div>
 													</a>
 												</div>
@@ -929,7 +788,7 @@ function openLeftMenu() {
 													<div class="prd-img">
 														<div class="thumb">
 															<a href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=795512&amp;wlp=33797296">
-																<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/795/795512_A1.jpg?v=20230316130549" alt="[쌤페스타] 한샘 아임빅 수납침대 SS 조명헤드형 (컬러 6종)+노뜨 매트 3종" onerror="onErrorImg(this)">
+																<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/795/795512_A1.jpg?v=20230321003414" alt="[쌤페스타] 한샘 아임빅 수납침대 SS 조명헤드형 (컬러 6종)+노뜨 매트 3종" onerror="onErrorImg(this)">
 															</a>
 														</div>
 													</div>
@@ -959,7 +818,7 @@ function openLeftMenu() {
 												
 														<div class="prd-opt">
 															<span class="prd-opt-score">4.9</span>
-															<span class="prd-opt-reply">423</span>
+															<span class="prd-opt-reply">428</span>
 														</div>
 													</a>
 												</div>
@@ -1001,10 +860,10 @@ $(document).ready(function () {
 	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=903306&amp;wlp=33798501">
 		<div class="prd-img">
 			<div class="thumb">
-				<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/903/903306_A1.jpg?v=20230316113127" alt="[쌤페스타] (아울렛특가~1/31) 한샘 그로브 와이드 Lite 2000 식탁 (의자 미포함)" onerror="onErrorImg(this)">
+				<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/903/903306_A1.jpg?v=20230320164209" alt="[쌤페스타] 한샘 그로브 와이드 Lite 2000 식탁 (의자 미포함)" onerror="onErrorImg(this)">
 			</div>
 			<!-- 슈퍼플래그 이미지 정보 추가 2022.09.02 M.Park ( MALLDVLPRJ-1895 ) -->
-				<span class="superflag"><img src="./hanssem_files/180_1678785869735.png"></span>
+				<span class="superflag"><img src="./한샘몰 _ 한샘몰_files/180_1678785869735.png"></span>
 			</div>
 	</a>
 	<button class="btn-bookmark " gdsno="903306" onclick="myWishList(this, 903306)">스크랩</button>
@@ -1014,7 +873,7 @@ $(document).ready(function () {
 		<div class="prd-info">
 			<div class="prd-brand"><div class="brand-name">
 				한샘</div></div>
-			<div class="prd-name"><div class="prd-name-txt">[쌤페스타] (아울렛특가~1/31) 한샘 그로브 와이드 Lite 2000 식탁 (의자 미포함)</div></div>
+			<div class="prd-name"><div class="prd-name-txt">[쌤페스타] 한샘 그로브 와이드 Lite 2000 식탁 (의자 미포함)</div></div>
 			<div class="prd-prc">
 				<div class="prd-prc-cur"><span class="num">276,000</span></div>
 				<div class="prd-rate">48<span class="unit">%</span></div>
@@ -1048,10 +907,10 @@ $(document).ready(function () {
 	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=288044&amp;wlp=33798501">
 		<div class="prd-img">
 			<div class="thumb">
-				<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/288/288044_A1.jpg?v=20230316133423" alt="[쌤페스타] 한샘 조앤라이트 책상의자 인조가죽형(컬러 1택) DIY" onerror="onErrorImg(this)">
+				<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/288/288044_A1.jpg?v=20230316133423" alt="[쌤페스타] 한샘 조앤라이트 책상의자 인조가죽형(컬러 1택) DIY" onerror="onErrorImg(this)">
 			</div>
 			<!-- 슈퍼플래그 이미지 정보 추가 2022.09.02 M.Park ( MALLDVLPRJ-1895 ) -->
-				<span class="superflag"><img src="./hanssem_files/180_1678785869735.png"></span>
+				<span class="superflag"><img src="./한샘몰 _ 한샘몰_files/180_1678785869735.png"></span>
 			</div>
 	</a>
 	<button class="btn-bookmark " gdsno="288044" onclick="myWishList(this, 288044)">스크랩</button>
@@ -1095,10 +954,10 @@ $(document).ready(function () {
 	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=903305&amp;wlp=33798501">
 		<div class="prd-img">
 			<div class="thumb">
-				<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/903/903305_A1.jpg?v=20230316164624" alt="[쌤페스타] 한샘 그로브 와이드 Lite 1600 식탁 (의자 미포함)" onerror="onErrorImg(this)">
+				<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/903/903305_A1.jpg?v=20230316164624" alt="[쌤페스타] 한샘 그로브 와이드 Lite 1600 식탁 (의자 미포함)" onerror="onErrorImg(this)">
 			</div>
 			<!-- 슈퍼플래그 이미지 정보 추가 2022.09.02 M.Park ( MALLDVLPRJ-1895 ) -->
-				<span class="superflag"><img src="./hanssem_files/180_1678785869735.png"></span>
+				<span class="superflag"><img src="./한샘몰 _ 한샘몰_files/180_1678785869735.png"></span>
 			</div>
 	</a>
 	<button class="btn-bookmark " gdsno="903305" onclick="myWishList(this, 903305)">스크랩</button>
@@ -1139,45 +998,43 @@ $(document).ready(function () {
                         <li>
                                 <!--  gdsCardType2.jsp -->
 <div class="prd-view">
-	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=585390&amp;wlp=33798501">
+	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=879774&amp;wlp=33798501">
 		<div class="prd-img">
 			<div class="thumb">
-				<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/585/585390_A1.jpg?v=20220413134709" alt="코렐  몬테베르데 4인 18P" onerror="onErrorImg(this)">
+				<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/879/879774_A1.jpg?v=20230316093450" alt="[쌤페스타] 한샘 항균 인덱스 도마 4P 세트" onerror="onErrorImg(this)">
 			</div>
+			<!-- 슈퍼플래그 이미지 정보 추가 2022.09.02 M.Park ( MALLDVLPRJ-1895 ) -->
+				<span class="superflag"><img src="./한샘몰 _ 한샘몰_files/180_1678785869735.png"></span>
 			</div>
 	</a>
-	<button class="btn-bookmark " gdsno="585390" onclick="myWishList(this, 585390)">스크랩</button>
+	<button class="btn-bookmark " gdsno="879774" onclick="myWishList(this, 879774)">스크랩</button>
 	<!-- 가격 고시정보 개편 - 2022.04.19 김재욱(MALLDVLPRJ-1670) -->
 	<!-- 모바일 웹용 -->
-	<a class="prd-info-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=585390&amp;wlp=33798501">
+	<a class="prd-info-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=879774&amp;wlp=33798501">
 		<div class="prd-info">
 			<div class="prd-brand"><div class="brand-name">
-				(주)블루스톤</div></div>
-			<div class="prd-name"><div class="prd-name-txt">코렐  몬테베르데 4인 18P</div></div>
+				한샘</div></div>
+			<div class="prd-name"><div class="prd-name-txt">[쌤페스타] 한샘 항균 인덱스 도마 4P 세트</div></div>
 			<div class="prd-prc">
-				<div class="prd-prc-cur"><span class="num">119,700</span></div>
-				<div class="prd-rate">70<span class="unit">%</span></div>
-					<div class="prd-prc-market"><span class="num">399,000</span></div>
+				<div class="prd-prc-cur"><span class="num">19,900</span></div>
+				<div class="prd-rate">66<span class="unit">%</span></div>
+					<div class="prd-prc-market"><span class="num">57,900</span></div>
 				</div>
 			
 			<!-- 모바일 앱용 -->
 			<div class="prd-prc app-prc">
-				<div class="prd-prc-cur"><span class="num">119,700</span></div>
-				<div class="prd-rate">70<span class="unit">%</span></div>
-					<div class="prd-prc-market"><span class="num">399,000</span></div>
+				<div class="prd-prc-cur"><span class="num">19,900</span></div>
+				<div class="prd-rate">66<span class="unit">%</span></div>
+					<div class="prd-prc-market"><span class="num">57,900</span></div>
 				</div>
 		</div>
 		<!-- //가격 고시정보 개편 - 2022.04.19 김재욱(MALLDVLPRJ-1670) -->
 		
 		<div class="prd-opt">
-			<span class="prd-opt-score">4.8</span>
-			<span class="prd-opt-reply">36</span>
+			<span class="prd-opt-score">5.0</span>
+			<span class="prd-opt-reply">2</span>
 		</div>
 		
-		<div class="prd-tag">
-				<span class="tag-label tag-color-pink">무료배송</span>
-					<span class="tag-label tag-color-pink app-tag">무료배송</span>
-				</div>
 		</a>
 </div>
 <!-- // gdsCardType2.jsp --></li>
@@ -1187,10 +1044,10 @@ $(document).ready(function () {
 	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=956883&amp;wlp=33798501">
 		<div class="prd-img">
 			<div class="thumb">
-				<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/956/956883_A1.jpg?v=20230315160558" alt="[쌤페스타] 네오플램 피카 인덕션 IH  7종 세트 (18편수+22양수+22곰솥+15계란말이팬+24팬+28팬+26웍)" onerror="onErrorImg(this)">
+				<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/956/956883_A1.jpg?v=20230321091309" alt="[쌤페스타] 네오플램 피카 인덕션 IH  7종 세트 (18편수+22양수+22곰솥+15계란말이팬+24팬+28팬+26웍)" onerror="onErrorImg(this)">
 			</div>
 			<!-- 슈퍼플래그 이미지 정보 추가 2022.09.02 M.Park ( MALLDVLPRJ-1895 ) -->
-				<span class="superflag"><img src="./hanssem_files/180_1678785869735.png"></span>
+				<span class="superflag"><img src="./한샘몰 _ 한샘몰_files/180_1678785869735.png"></span>
 			</div>
 	</a>
 	<button class="btn-bookmark " gdsno="956883" onclick="myWishList(this, 956883)">스크랩</button>
@@ -1234,10 +1091,10 @@ $(document).ready(function () {
 	<a class="prd-link" href="https://mall.hanssem.com/m/mgoods/goodsDetailMall.do?gdsNo=683381&amp;wlp=33798501">
 		<div class="prd-img">
 			<div class="thumb">
-				<img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/683/683381_A1.jpg?v=20230315160558" alt="[쌤페스타] (무료배송)블렌딩 구스 양면 차렵이불 5종 (SS/Q)" onerror="onErrorImg(this)">
+				<img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/gds/298/683/683381_A1.jpg?v=20230315160558" alt="[쌤페스타] (무료배송)블렌딩 구스 양면 차렵이불 5종 (SS/Q)" onerror="onErrorImg(this)">
 			</div>
 			<!-- 슈퍼플래그 이미지 정보 추가 2022.09.02 M.Park ( MALLDVLPRJ-1895 ) -->
-				<span class="superflag"><img src="./hanssem_files/180_1678785869735.png"></span>
+				<span class="superflag"><img src="./한샘몰 _ 한샘몰_files/180_1678785869735.png"></span>
 			</div>
 	</a>
 	<button class="btn-bookmark " gdsno="683381" onclick="myWishList(this, 683381)">스크랩</button>
@@ -1295,7 +1152,7 @@ $(document).ready(function () {
                             <div class="series-prd">
                                 <div class="img">
                                     <div class="thumb">
-                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16212&amp;wlp=33797297"><img src="./hanssem_files/16212_P5.jpg" alt="스테이" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
+                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16212&amp;wlp=33797297"><img src="./한샘몰 _ 한샘몰_files/16212_P5.jpg" alt="스테이" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
                                     </div>
                                 </div>
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16212&amp;wlp=33797297" class="txt">
@@ -1309,7 +1166,7 @@ $(document).ready(function () {
                             <div class="series-prd">
                                 <div class="img">
                                     <div class="thumb">
-                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16222&amp;wlp=33797297"><img src="./hanssem_files/16222_P5.jpg" alt="아임빅" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
+                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16222&amp;wlp=33797297"><img src="./한샘몰 _ 한샘몰_files/16222_P5.jpg" alt="아임빅" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
                                     </div>
                                 </div>
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16222&amp;wlp=33797297" class="txt">
@@ -1323,7 +1180,7 @@ $(document).ready(function () {
                             <div class="series-prd">
                                 <div class="img">
                                     <div class="thumb">
-                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16184&amp;wlp=33797297"><img src="./hanssem_files/16184_P5.jpg" alt="미나" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
+                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16184&amp;wlp=33797297"><img src="./한샘몰 _ 한샘몰_files/16184_P5.jpg" alt="미나" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
                                     </div>
                                 </div>
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16184&amp;wlp=33797297" class="txt">
@@ -1337,7 +1194,7 @@ $(document).ready(function () {
                             <div class="series-prd">
                                 <div class="img">
                                     <div class="thumb">
-                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16192&amp;wlp=33797297"><img src="./hanssem_files/16192_P5.jpg" alt="프라임" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
+                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16192&amp;wlp=33797297"><img src="./한샘몰 _ 한샘몰_files/16192_P5.jpg" alt="프라임" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
                                     </div>
                                 </div>
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16192&amp;wlp=33797297" class="txt">
@@ -1351,7 +1208,7 @@ $(document).ready(function () {
                             <div class="series-prd">
                                 <div class="img">
                                     <div class="thumb">
-                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16205&amp;wlp=33797297"><img src="./hanssem_files/16205_P5.jpg" alt="샘키즈" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
+                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16205&amp;wlp=33797297"><img src="./한샘몰 _ 한샘몰_files/16205_P5.jpg" alt="샘키즈" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
                                     </div>
                                 </div>
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16205&amp;wlp=33797297" class="txt">
@@ -1365,7 +1222,7 @@ $(document).ready(function () {
                             <div class="series-prd">
                                 <div class="img">
                                     <div class="thumb">
-                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16207&amp;wlp=33797297"><img src="./hanssem_files/16207_P5.jpg" alt="티오" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
+                                        <a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16207&amp;wlp=33797297"><img src="./한샘몰 _ 한샘몰_files/16207_P5.jpg" alt="티오" onerror="this.src=&#39;/resources/mobile/images/m_common/no_img_1_1.jpg&#39;"></a>
                                     </div>
                                 </div>
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16207&amp;wlp=33797297" class="txt">
@@ -1403,7 +1260,7 @@ $(document).ready(function () {
 						<li class="hsm-swipe-list on">
 							
 							<a href="https://m.remodeling.hanssem.com/event/16301?eventStatusType=ING&amp;wlp=33797298">
-								<img src="./hanssem_files/1679020628823_14137_0.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1679020628823_14137_0.jpg" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
@@ -1447,7 +1304,7 @@ $(document).ready(function () {
 							<div class="cardtype-bn-img">
 								
 								<a href="https://m.remodeling.hanssem.com/main?module=GnbRemodelingShop&amp;wlp=33797299">
-									<img src="./hanssem_files/1676978176211_11387_0.jpg">
+									<img src="./한샘몰 _ 한샘몰_files/1676978176211_11387_0.jpg">
 								</a>
 							</div>
 						</div>
@@ -1458,7 +1315,7 @@ $(document).ready(function () {
 							<div class="cardtype-bn-img">
 								
 								<a href="https://m.remodeling.hanssem.com/untact-consult?wlp=33797299">
-									<img src="./hanssem_files/1676978152624_11387_0.jpg">
+									<img src="./한샘몰 _ 한샘몰_files/1676978152624_11387_0.jpg">
 								</a>
 							</div>
 						</div>
@@ -1469,7 +1326,7 @@ $(document).ready(function () {
 							<div class="cardtype-bn-img">
 								
 								<a href="https://m.remodeling.hanssem.com/main?module=GnbRemodelingStart&amp;wlp=33797299">
-									<img src="./hanssem_files/1676978128307_11387_0.jpg">
+									<img src="./한샘몰 _ 한샘몰_files/1676978128307_11387_0.jpg">
 								</a>
 							</div>
 						</div>
@@ -1493,7 +1350,7 @@ $(document).ready(function () {
 					<div class="recomprd-bn">
 						<div class="recomprd-bn-img">
 							<a href="https://m.remodeling.hanssem.com/goods/987696?wlp=33797300">
-								<img src="./hanssem_files/987696_A1.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/987696_A1.jpg" onerror="onErrorImg(this)">
 							</a>
 						</div>
 						<div class="recomprd-bn-tit">슬림비비드</div>
@@ -1503,7 +1360,7 @@ $(document).ready(function () {
 					<div class="recomprd-bn">
 						<div class="recomprd-bn-img">
 							<a href="https://m.remodeling.hanssem.com/goods/1000010?wlp=33797300">
-								<img src="./hanssem_files/4b655c88-dae4-4be8-b8b8-e90cfe93dc1c.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/4b655c88-dae4-4be8-b8b8-e90cfe93dc1c.jpg" onerror="onErrorImg(this)">
 							</a>
 						</div>
 						<div class="recomprd-bn-tit">심플패키지</div>
@@ -1513,7 +1370,7 @@ $(document).ready(function () {
 					<div class="recomprd-bn">
 						<div class="recomprd-bn-img">
 							<a href="https://m.remodeling.hanssem.com/goods/959053?wlp=33797300">
-								<img src="./hanssem_files/959053_A1.jpg" class="js-lazy" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/959053_A1.jpg" class="js-lazy" onerror="onErrorImg(this)">
 							</a>
 						</div>
 						<div class="recomprd-bn-tit">ML100 무드 베이지</div>
@@ -1523,7 +1380,7 @@ $(document).ready(function () {
 					<div class="recomprd-bn">
 						<div class="recomprd-bn-img">
 							<a href="https://m.remodeling.hanssem.com/goods/916311?wlp=33797300">
-								<img src="./hanssem_files/916311_A1.jpg" class="js-lazy" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/916311_A1.jpg" class="js-lazy" onerror="onErrorImg(this)">
 							</a>
 						</div>
 						<div class="recomprd-bn-tit">EO5 매트오크</div>
@@ -1556,14 +1413,14 @@ $(document).ready(function () {
 						<li class="hsm-swipe-list" style="display: none; left: 100%;">
 							
 							<a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=21842&amp;wlp=33797301">
-								<img src="./hanssem_files/1678841907534_14137_0.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1678841907534_14137_0.jpg" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
 						<li class="hsm-swipe-list on" style="left: 0px; display: block;">
 							
 							<a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=23306&amp;wlp=33797301">
-								<img src="./hanssem_files/1678842142338_14137_0.jpg" onerror="onErrorImg(this)">
+								<img src="./한샘몰 _ 한샘몰_files/1678842142338_14137_0.jpg" onerror="onErrorImg(this)">
 							</a>
 						</li>
 					
@@ -1584,7 +1441,7 @@ $(document).ready(function () {
 <li id="homeIdeaNode_22700">
     <div class="thumb">
         <a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=22700&amp;wlp=33797698">
-            <img src="./hanssem_files/1676944887979_0.jpg" onerror="onErrorImg(this)">
+            <img src="./한샘몰 _ 한샘몰_files/1676944887979_0.jpg" onerror="onErrorImg(this)">
                 </a>
     </div>
     <div class="txt">
@@ -1603,7 +1460,7 @@ $(document).ready(function () {
 <li id="homeIdeaNode_20599">
     <div class="thumb">
         <a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=20599&amp;wlp=33797698">
-            <img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/22/1677025585172_0.jpg?v=202303171521&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
+            <img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/22/1677025585172_0.jpg?v=202303171521&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
                 </a>
     </div>
     <div class="txt">
@@ -1622,7 +1479,7 @@ $(document).ready(function () {
 <li id="homeIdeaNode_20905">
     <div class="thumb">
         <a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=20905&amp;wlp=33797698">
-            <img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/22/1677046803856_0.jpg?v=202303171520&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
+            <img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/22/1677046803856_0.jpg?v=202303171520&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
                 </a>
     </div>
     <div class="txt">
@@ -1641,7 +1498,7 @@ $(document).ready(function () {
 <li id="homeIdeaNode_20964">
     <div class="thumb">
         <a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=20964&amp;wlp=33797698">
-            <img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/21/1676968125986_0.jpg?v=202303171519&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
+            <img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/21/1676968125986_0.jpg?v=202303171519&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
                 </a>
     </div>
     <div class="txt">
@@ -1660,7 +1517,7 @@ $(document).ready(function () {
 <li id="homeIdeaNode_22010">
     <div class="thumb">
         <a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=22010&amp;wlp=33797698">
-            <img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/21/1676968383177_0.jpg?v=202303171519&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
+            <img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/21/1676968383177_0.jpg?v=202303171519&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
                 </a>
     </div>
     <div class="txt">
@@ -1679,7 +1536,7 @@ $(document).ready(function () {
 <li id="homeIdeaNode_22036">
     <div class="thumb">
         <a href="https://mall.hanssem.com/m/homeIdea/contents/magazineDetail.do?seq=22036&amp;wlp=33797698">
-            <img src="./hanssem_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/16/1676551810934_0.jpg?v=202303171519&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
+            <img src="./한샘몰 _ 한샘몰_files/blank.gif" class="js-lazy" data-lazy="https://image.hanssem.com/hsimg/upload/homeIdea/2023/02/16/1676551810934_0.jpg?v=202303171519&amp;w=750&amp;q=80" onerror="onErrorImg(this)">
                 </a>
     </div>
     <div class="txt">
@@ -1709,7 +1566,7 @@ $(document).ready(function () {
 
 
 
-<!-- m_main_common_square_banner.jsp [1:1 일반배너] [5 / 2]건 -->
+<!-- m_main_common_square_banner.jsp [1:1 일반배너] [4 / 2]건 -->
 
 	<div class="ui-component bnfcard-bn-comp">
 		<h3 class="comp-tit">
@@ -1723,7 +1580,7 @@ $(document).ready(function () {
 							<div class="bnfcard-bn-img">
 								
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16026&amp;wlp=33797302">
-									<div class="gatebn-img"><img src="./hanssem_files/1678860101663_14112_0.jpg" onerror="onErrorImg(this)"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678860101663_14112_0.jpg" onerror="onErrorImg(this)"></div>
 								</a>
 							</div>
 						</div>
@@ -1734,7 +1591,7 @@ $(document).ready(function () {
 							<div class="bnfcard-bn-img">
 								
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=15707&amp;wlp=33797302">
-									<div class="gatebn-img"><img src="./hanssem_files/1678862150781_14112_0.jpg" onerror="onErrorImg(this)"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678862150781_14112_0.jpg" onerror="onErrorImg(this)"></div>
 								</a>
 							</div>
 						</div>
@@ -1745,7 +1602,7 @@ $(document).ready(function () {
 							<div class="bnfcard-bn-img">
 								
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=11997&amp;wlp=33797302">
-									<div class="gatebn-img"><img src="./hanssem_files/1678860545005_14112_0.jpg" class="js-lazy" onerror="onErrorImg(this)"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678860545005_14112_0.jpg" class="js-lazy" onerror="onErrorImg(this)"></div>
 								</a>
 							</div>
 						</div>
@@ -1756,25 +1613,14 @@ $(document).ready(function () {
 							<div class="bnfcard-bn-img">
 								
 								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16273&amp;wlp=33797302">
-									<div class="gatebn-img"><img src="./hanssem_files/1678847536241_14137_0.jpg" class="js-lazy" onerror="onErrorImg(this)"></div>
-								</a>
-							</div>
-						</div>
-					</li>
-				
-					<li>
-						<div class="bnfcard-bn">
-							<div class="bnfcard-bn-img">
-								
-								<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=15480&amp;wlp=33797302">
-									<div class="gatebn-img"><img src="./hanssem_files/1678867929153_11732_0.jpg" class="js-lazy" onerror="onErrorImg(this)"></div>
+									<div class="gatebn-img"><img src="./한샘몰 _ 한샘몰_files/1678847536241_14137_0.jpg" class="js-lazy" onerror="onErrorImg(this)"></div>
 								</a>
 							</div>
 						</div>
 					</li>
 				
 			</ul>
-			<div class="xSrlbar-wrap"><span class="xSrlbar" style="width: 50%;"></span></div>
+			<div class="xSrlbar-wrap"><span class="xSrlbar" style="width: 100%;"></span></div>
 		</div>
 	</div>
 
@@ -1785,7 +1631,7 @@ $(document).ready(function () {
 </div> <!-- contents -->
 
 <!-- popup - 메인 팝업 -->
-<div class="m-pop alert pop-main focus-pop" id="pop-main" style="z-index: 1002; display: block; bottom: 0px;">
+<div class="m-pop init alert pop-main" id="pop-main">
 	<div class="blank-btn" onclick="popup_closeV1(&#39;pop-main&#39;)"></div>
 	<div class="stand-pop">
 		<!-- 메인팝업 이미지 -->
@@ -1794,7 +1640,7 @@ $(document).ready(function () {
 				<li class="hsm-swipe-list on">
 						<a href="https://mall.hanssem.com/m/mplan/planDetail.do?shpNo=16274&amp;wlp=16556729">
 							<!-- 앞에두장은 data-lazy 적용안함 -->
-									<img src="./hanssem_files/1679032557307_0.jpg" onerror="this.src=&#39;/resources/mobile/images/common/noimage/576x512.jpg&#39;" data-priority="1">
+									<img src="./한샘몰 _ 한샘몰_files/1679032557307_0.jpg" onerror="this.src=&#39;/resources/mobile/images/common/noimage/576x512.jpg&#39;" data-priority="1">
 								</a>
 					</li>
 				</ul>
@@ -1968,7 +1814,7 @@ $(window).on('load', function () {
 			<div class="copyright">(C) 2023 Hanssem Co., Ltd. All rights reserved.</div>
 		</div>
 	</div>
-<iframe style="display:none;" id="appCheck" src="./hanssem_files/saved_resource.html"></iframe>
+<iframe style="display:none;" id="appCheck" src="./한샘몰 _ 한샘몰_files/saved_resource.html"></iframe>
 
 <script type="text/javascript">
 var isLogin = 'false';
@@ -2115,14 +1961,44 @@ function openEmailCollection() {
 		<input type="hidden" name="vMod" id="vMod" value="Y"/>
 </form> -->
 
+<!-- Google Tag Manager -->
+<!-- Google Tag Manager -->
+<script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K6NBCQC');
+    
+  	//구글 태그 매니저 스크립트 (MALLDVLPRJ-659 , 전체 페이지 실행) 20191121 지대은
+    $(function(){
+    	dataLayer = dataLayer || [];
+    	var pushData = {
+            "deviceChannel" : fnIsApp()?'MOAPP':'MOWEB' //WEB,MOWEB,MOAPP
+        };
+        // 로그인한 상태면 회원번호 추가  - 2021.05.28 신호섭 (MALLDVLPRJ-1350)
+        var loginCookieNo = Common.getCookie("loginCookieNo");
+        if (loginCookieNo == "") {
+            pushData["user-id"] = null;
+        } else {
+            pushData["user-id"] = loginCookieNo;
+        }
+        
+    	dataLayer.push(pushData);
+    });
+ 	// //구글 태그 매니저 스크립트 (MALLDVLPRJ-659 , 전체 페이지 실행) 20191121 지대은
+</script>
+<!-- End Google Tag Manager -->
 
+<!-- Google Tag Manager (noscript) -->
+<!-- End Google Tag Manager (noscript) --><!--   다음 DDN 리타겟팅 스크립트 삽입 start -->
 <script type="text/javascript">
     var roosevelt_params = {
         retargeting_id:'gIXHEMhfFfePPU6M6ZzoMA00',
         tag_label:'fKquKos2RSyCGGPHppqxUg'
     };
 </script>
-<script type="text/javascript" src="./hanssem_files/roosevelt.js" async=""></script>
+<script type="text/javascript" src="./한샘몰 _ 한샘몰_files/roosevelt.js" async=""></script>
 <!--   다음 DDN 리타겟팅 스크립트 삽입 end -->
 
 <script type="text/javascript">
@@ -2178,7 +2054,7 @@ if (SERVER_TYPE == 'REAL') {
 </script>
 <!-- 20180706 와이즈로그 스크립트 끝 -->
 
-<div id="wp_tg_cts" style="display:none;"><script id="wp_tag_script_1679280519057" charset="UTF-8" src="./hanssem_files/wpc.php"></script><script id="wp_onsite_script" charset="UTF-8" src="./hanssem_files/onsite.js"></script><script id="wp_log_script_1679280519930" src="./hanssem_files/js(1)"></script></div>
+<div id="wp_tg_cts" style="display:none;"><script id="wp_tag_script_1679379433895" charset="UTF-8" src="./한샘몰 _ 한샘몰_files/wpc.php"></script><script id="wp_onsite_script" charset="UTF-8" src="./한샘몰 _ 한샘몰_files/onsite.js"></script></div>
 <script type="text/javascript">
 var wptg_tagscript_vars = wptg_tagscript_vars || [];
 wptg_tagscript_vars.push(
@@ -2191,7 +2067,7 @@ wptg_tagscript_vars.push(
 	};
 }));
 </script>
-<script type="text/javascript" async="" src="./hanssem_files/wp_astg_4.0.js"></script>
+<script type="text/javascript" async="" src="./한샘몰 _ 한샘몰_files/wp_astg_4.0.js"></script>
 <!-- 2016.01.19 페이지 view관련 로그 추적을 위한 공통 스크립트 삽입 구간 finish -->
 
 <script>
@@ -2241,7 +2117,7 @@ wptg_tagscript_vars.push(
 
 <!-- // footer -->
 <!-- 앱다운 배너 -->
-<div class="m-pop alert pop-app init" id="pop-app" style="z-index: 1001; bottom: -100%; display: none;">
+<div class="m-pop alert pop-app init" id="pop-app" style="z-index: 1001; display: none; bottom: -100%;">
 	<div class="stand-pop">
 		<!-- 앱 제안 컨텐츠 -->
 		<div class="app-suggest">
@@ -2254,8 +2130,8 @@ wptg_tagscript_vars.push(
 				<!-- 상품상세 -->
 				<!-- 기획전 -->
 				<!-- 그외 -->
-				<a href="javascript:;" onclick="onAppLaunch();" class="on" data-gtm-vis-first-on-screen-13183982_874="837">앱 바로가기</a>
-				<a href="javascript:;" onclick="closeAppDownload();" data-gtm-vis-first-on-screen-13183982_876="840">모바일 웹으로 보기</a>
+				<a href="javascript:;" onclick="onAppLaunch();" class="on">앱 바로가기</a>
+				<a href="javascript:;" onclick="closeAppDownload();">모바일 웹으로 보기</a>
 			</div>
 			</div>
 		</div>
@@ -2321,7 +2197,7 @@ function cartCnt(){
 <div class="m-pop init spot-pop" id="ezPopLayer01">
 	<div class="pop-layer">
 		<div class="pop-cont">
-			<div><img class="js-lazy" src="./hanssem_files/10x10.png" data-lazy="//image2.hanssem.com/event/2018/02/180212_pop_alert_04.jpg"></div>
+			<div><img class="js-lazy" src="./한샘몰 _ 한샘몰_files/10x10.png" data-lazy="//image2.hanssem.com/event/2018/02/180212_pop_alert_04.jpg"></div>
 		</div>
 		<div class="pop-btn-area">
 			<a class="pop-btn" href="javascript:;" onclick="ezwel.closePopToday(&#39;ezCookieP1_MO&#39;);popup_closeV1(&#39;ezPopLayer01&#39;);">오늘 하루 보지 않기</a>
@@ -2335,7 +2211,7 @@ function cartCnt(){
 <div class="m-pop init spot-pop" id="ezPopLayer02">
 	<div class="pop-layer">
 		<div class="pop-cont">
-			<div><a href="javascript:;" onclick="popup_closeV1(&#39;ezPopLayer02&#39;);"><img class="js-lazy" src="./hanssem_files/10x10.png" data-lazy="//image2.hanssem.com/event/2017/12/171212_pop_alertm_02.jpg"></a></div>
+			<div><a href="javascript:;" onclick="popup_closeV1(&#39;ezPopLayer02&#39;);"><img class="js-lazy" src="./한샘몰 _ 한샘몰_files/10x10.png" data-lazy="//image2.hanssem.com/event/2017/12/171212_pop_alertm_02.jpg"></a></div>
 		</div>
 	</div>
 </div>
@@ -2395,27 +2271,16 @@ $(function() {
 });
 
 </script>
-<!-- // [이지웰] 이지웰 공통 팝업(모바일) --><!-- END:EZWEL Area --><iframe height="0" width="0" style="display: none; visibility: hidden;" src="./hanssem_files/activityi.html"></iframe>
+<!-- // [이지웰] 이지웰 공통 팝업(모바일) --><!-- END:EZWEL Area --><iframe height="0" width="0" style="display: none; visibility: hidden;" src="./한샘몰 _ 한샘몰_files/activityi.html"></iframe>
 	
 
 <script type="text/javascript" id="">!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","568465993925864");fbq("set","agent","tmgoogletagmanager","568465993925864");fbq("track","PageView");</script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=568465993925864&amp;ev=PageView&amp;noscript=1"></noscript><script type="text/javascript" id="" src="./hanssem_files/wcslog.js"></script><script type="text/javascript" id="" charset="UTF-8" src="./hanssem_files/kp.js"></script><script type="text/javascript" id="" src="./hanssem_files/nlogger.js"></script> 
-<script type="text/javascript" id="" src="./hanssem_files/wcslog.js"></script><div id="criteo-tags-div" style="display: none;"></div>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=568465993925864&amp;ev=PageView&amp;noscript=1"></noscript><script type="text/javascript" id="" src="./한샘몰 _ 한샘몰_files/wcslog.js"></script><script type="text/javascript" id="" charset="UTF-8" src="./한샘몰 _ 한샘몰_files/kp.js"></script><script type="text/javascript" id="" src="./한샘몰 _ 한샘몰_files/nlogger.js"></script> 
+<script type="text/javascript" id="" src="./한샘몰 _ 한샘몰_files/wcslog.js"></script><div id="criteo-tags-div" style="display: none;"><iframe src="./한샘몰 _ 한샘몰_files/syncframe.html" id="criteo-syncframe-onetag" width="0" height="0" frameborder="0" style="border-width:0px; margin:0px; display:none" title="Criteo GUM iframe"></iframe></div>
 <script type="text/javascript" id="">if(!wcs_add)var wcs_add={};wcs_add.wa="46484c99548e18";wcs_do();</script>
 <script type="text/javascript" id="">kakaoPixel(google_tag_manager["GTM-K6NBCQC"].macro(3)).pageView();</script>
 <script type="text/javascript" id="">nLogger.configure({nth_service_id:"REAL_MOWEB",nth_uid_key:"loginCookieId"});</script>
 <script type="text/javascript" id="">nLogger.event(google_tag_manager["GTM-K6NBCQC"].macro(7),{userNo:google_tag_manager["GTM-K6NBCQC"].macro(8),wp_uid:google_tag_manager["GTM-K6NBCQC"].macro(9)});</script> 
 <script type="text/javascript" id="">if(!wcs_add)var wcs_add={};wcs_add.wa="s_4d6dcab575dc";if(!_nasa)var _nasa={};wcs.inflow();wcs_do(_nasa);</script>
-<iframe src="./hanssem_files/iframe.html" id="mm_sync_back_ground" title="MediaMath Advertising" style="visibility: hidden; display: none;"></iframe><iframe height="0" width="0" title="Criteo DIS iframe" style="display: none;" src="./hanssem_files/saved_resource(1).html"></iframe><script type="text/javascript" id="">(function(){function e(c){for(var d={},b=["attributes"],a=0;a<b.length;a++)d[b[a]]=c[b[a]]instanceof NodeList?Array.from(c[b[a]]):c[b[a]];return d}function g(c){try{var d=["attributes"];JSON.stringify(c.srcElement.parentNode,function(b,a){if(""===b)return e(a);if(Array.isArray(this))return"object"===typeof a?e(a):a;if(d.find(function(h){return h===b}))var f=a[0].localName;var k=a[1].localName;"data-gnb"===f?dataLayer.push({event:"gnb-click",gtmKeyword:a[0].localName.replace("data-","")+"-"+a[0].value}):
-"data-value"===f?dataLayer.push({event:"gnb-click",gtmKeyword:a[0].localName.replace("data-value","")+a[0].value}):"data-snb"===k&&dataLayer.push({event:"gnb-click",gtmKeyword:a[1].localName.replace("data-","")+"-"+a[1].value});return a})}catch(b){}}window.addEventListener("click",g)})();</script>
-
-<script>
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TDNQ9W4');
-</script>
-
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TDNQ9W4" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
-
-</body></html>
+<iframe height="0" width="0" title="Criteo DIS iframe" style="display: none;" src="./한샘몰 _ 한샘몰_files/saved_resource(1).html"></iframe><script type="text/javascript" id="">(function(){function e(c){for(var d={},b=["attributes"],a=0;a<b.length;a++)d[b[a]]=c[b[a]]instanceof NodeList?Array.from(c[b[a]]):c[b[a]];return d}function g(c){try{var d=["attributes"];JSON.stringify(c.srcElement.parentNode,function(b,a){if(""===b)return e(a);if(Array.isArray(this))return"object"===typeof a?e(a):a;if(d.find(function(h){return h===b}))var f=a[0].localName;var k=a[1].localName;"data-gnb"===f?dataLayer.push({event:"gnb-click",gtmKeyword:a[0].localName.replace("data-","")+"-"+a[0].value}):
+"data-value"===f?dataLayer.push({event:"gnb-click",gtmKeyword:a[0].localName.replace("data-value","")+a[0].value}):"data-snb"===k&&dataLayer.push({event:"gnb-click",gtmKeyword:a[1].localName.replace("data-","")+"-"+a[1].value});return a})}catch(b){}}window.addEventListener("click",g)})();</script></body></html>
