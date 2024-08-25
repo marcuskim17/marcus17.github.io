@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirect Button Example</title>
+</head>
+<body>
+
+<iframe id="targetFrame" width="600" height="400">
+    Your browser does not support iframes.
+</iframe>
+
+<button onclick="redirect()">Redirect Now</button>
+
+<script>
+function redirect() {
+    var url = "https://kakaobankqa.onelink.me/ch/4YRm/mt8asked";
+    var iframe = document.getElementById('targetFrame');
+    iframe.setAttribute('src', url);
+}
+</script>
+
+</body>
+</html>
