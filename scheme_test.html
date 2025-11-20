@@ -1,0 +1,172 @@
+<html><head>
+  <title>Launching App...</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:600" rel="stylesheet" />
+    <link rel="icon" href="https://cdn.appsflyer.com/af-statics/images/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="https://cdn.appsflyer.com/af-statics/images/favicon.png" type="image/png" />
+    <link rel="icon" href="https://cdn.appsflyer.com/af-statics/images/favicon.png" type="image/png" />
+  <style>
+    html,
+    body {
+      height: 100%%;
+      width: 100%%;
+    }
+
+    body {
+      background: #F5F6F8;
+      font-size: 16px;
+      font-family: 'Open Sans', sans-serif;
+      color: #2C3E51;
+    }
+
+    .main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .main>div>div,
+    .main>div>span {
+      text-align: center;
+    }
+
+    .main span {
+      display: block;
+      padding: 40px 0 170px;
+      font-size: 3rem;
+    }
+
+    .main .app img {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+    <div class="main">
+        <div class="workarea">
+            <div id="logo" class="logo">
+            </div>
+            <span id="app_name"></span>
+            <div class="app">
+                <img src="https://cdn.appsflyer.com/af-statics/images/rta/app_store_badge.png" onclick="redirect_to_store()" />
+            </div>
+        </div>
+    </div>
+    <script>
+        // fbc8ba0104d8a02e13703b01707e1a07
+        // 0fd18123f26de2cdbbce6134aad87ea0
+var store_link = 'https://www.yeogi.com/domestic-accommodations/69729?utm_source=UYT&utm_medium=AFF&utm_campaign=2025-11-19_GC_UYT_ALL_AFF_PAID&utm_content=콴콴콴&af_sub1=312&af_force_deeplink=true&af_dp=yeogi%3A%2F%2Fproduct%3FactionDetail%3DplaceDetail%26actionDetailParam%3D%5BplaceId%3A69729%5D&source_caller=api&pid=UYT&is_retargeting=true&af_click_lookback=7d&shortlink=5sn6l0jx&af_sub2=17507&af_adset=콴콴콴&af_ad=★당일특가★ 체스터톤스 호텔&deep_link_value=yeogi%3A%2F%2Fproduct%3FactionDetail%3DplaceDetail%26actionDetailParam%3D%5BplaceId%3A69729%5D&af_reengagement_window=7d&af_siteid=NB&c=2025-11-19_GC_UYT_ALL_AFF_PAID';
+var app_link = 'yeogi://product?actionDetail=placeDetail&actionDetailParam=[placeId:69729]&af_ad=%E2%98%85%EB%8B%B9%EC%9D%BC%ED%8A%B9%EA%B0%80%E2%98%85%20%EC%B2%B4%EC%8A%A4%ED%84%B0%ED%86%A4%EC%8A%A4%20%ED%98%B8%ED%85%94&af_adset=%EC%BD%B4%EC%BD%B4%EC%BD%B4&af_click_lookback=7d&af_deeplink=true&af_dp=yeogi%3A%2F%2Fproduct%3FactionDetail%3DplaceDetail%26actionDetailParam%3D%5BplaceId%3A69729%5D&af_force_deeplink=true&af_r=https%3A%2F%2Fwww.yeogi.com%2Fdomestic-accommodations%2F69729%3Futm_source%3DUYT%26utm_medium%3DAFF%26utm_campaign%3D2025-11-19_GC_UYT_ALL_AFF_PAID%26utm_content%3D%EC%BD%B4%EC%BD%B4%EC%BD%B4&af_reengagement_window=7d&af_siteid=NB&af_sub1=312&af_sub2=17507&campaign=2025-11-19_GC_UYT_ALL_AFF_PAID&deep_link_value=yeogi%3A%2F%2Fproduct%3FactionDetail%3DplaceDetail%26actionDetailParam%3D%5BplaceId%3A69729%5D&is_retargeting=true&media_source=UYT&shortlink=5sn6l0jx&source_caller=api';
+var app_icon = 'https://cdnappicons.appsflyer.com/id884043462.ver-6.1.0.png';
+var app_name = '[iOS] 여기어때 - 호텔, 모텔, 펜션 최저가 예약!';
+var parts = app_link.split('?', 2);
+var scheme = parts[0];
+var data = parts[1];
+var new_link = '';
+var reg = /(:\/\/)$/; //scheme ends with '://'
+var reg2 = /(:\/\/)/; //scheme contains '://'
+var timeout = 3000;
+var is_naver_main = (navigator.userAgent.indexOf('NAVER(inapp; search;') > -1);
+var is_kakao = (navigator.userAgent.indexOf('KAKAOTALK') > -1);
+var is_line = (navigator.userAgent.indexOf('Line/') > -1);
+var is_naver_webtoon = (navigator.userAgent.indexOf('NaverWebtoon/') > -1);
+var is_special_browser = (is_kakao || is_line || is_naver_main || is_naver_webtoon);
+if(is_special_browser){
+    timeout = 1000;
+}
+if (app_icon !== 'null') {
+    var logoElement = document.getElementById('logo');
+    var imgElement = document.createElement('IMG');
+    imgElement.setAttribute('src', app_icon);
+    imgElement.setAttribute('style', 'width:250px;height:250px;border-radius:20px;');
+    logoElement.appendChild(imgElement);
+}
+if (app_name) {
+    var appNameElement = document.getElementById('app_name');
+    appNameElement.innerHTML = app_name;
+}
+
+function hide_appstore_badge(){
+    const appstoreElement = document.getElementsByClassName('app')
+    if (appstoreElement && appstoreElement[0]){
+        appstoreElement[0].style.visibility = 'hidden'
+    }
+}
+
+is_custom_redirection() && hide_appstore_badge()
+
+document.addEventListener('visibilitychange', function () {
+    if (window.history.length > 1) {
+        window.history.go(-1); // go back to previous page
+    } else {
+        window.close();
+    }
+});
+
+function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+        currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+}
+
+function is_instagram() {
+    var ua = navigator.userAgent;
+    return (ua.indexOf('Instagram') != -1);
+}
+
+function is_custom_redirection() {
+    return (store_link.startsWith("http") && !store_link.startsWith("https://apps.apple.com"));
+}
+
+function redirect_to_store() {
+    if (!document.hidden) {
+        if (is_custom_redirection()) {
+            window.location.replace(store_link);
+        } else {
+            window.location.href = store_link;
+        }
+    }
+}
+
+function valid_scheme(){
+    if (reg.test(scheme)) {
+        var new_scheme = scheme + 'af';
+        new_link = new_scheme + '?' + data;
+    } else if (reg2.test(scheme)) {
+        new_link = scheme + '?' + data;
+    } else {
+        return false
+    }
+    return true
+}
+
+function handle_instagram(){
+    setTimeout(function () {
+        window.location.href = new_link;
+        sleep(900);
+    }, 600);
+    timeout = 3000;
+}
+
+try {
+    if (valid_scheme()){
+        if (is_instagram()) {
+            handle_instagram()
+        } else {
+            window.location.href = new_link;
+        }
+    }
+} catch (e) {
+    redirect_to_store();
+}
+setTimeout(redirect_to_store, timeout);
+    </script>
+</body>
+</html>
