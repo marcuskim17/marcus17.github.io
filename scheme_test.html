@@ -116,9 +116,9 @@ function sleep(milliseconds) {
     } while (currentDate - date < milliseconds);
 }
 
-function is_instagram() {
+function is_naverblog() {
     var ua = navigator.userAgent;
-    return (ua.indexOf('Instagram') != -1);
+    return (ua.indexOf('NaverBlog') != -1);
 }
 
 function is_custom_redirection() {
@@ -147,7 +147,7 @@ function valid_scheme(){
     return true
 }
 
-function handle_instagram(){
+function handle_naverblog(){
     setTimeout(function () {
         window.location.href = new_link;
         sleep(900);
@@ -157,8 +157,8 @@ function handle_instagram(){
 
 try {
     if (valid_scheme()){
-        if (is_instagram()) {
-            handle_instagram()
+        if (is_naverblog()) {
+            handle_naverblog()
         } else {
             window.location.href = new_link;
         }
