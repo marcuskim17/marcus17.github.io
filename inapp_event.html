@@ -145,6 +145,34 @@
       </section>
     </main>
     <script type="text/javascript">
+      var BUTTON_LABEL_IDLE = "Record Event";
+      var BUTTON_LABEL_SUCCESS = "Event sent successfully";
+      var BUTTON_LABEL_FAILURE = "Not working";
+      var isAwaitingEventResult = false;
+      var sentAttemptTimestamp = 0;
+      var resultTimer = null;
+
+      function setButtonLabel(label) {
+        button.textContent = label;
+      }
+
+      function clearResultTimer() {
+        if (resultTimer) {
+          window.clearTimeout(resultTimer);
+          resultTimer = null;
+        }
+      }
+
+      function setEventStatus(label) {
+        clearResultTimer();
+        isAwaitingEventResult = false;
+        setButtonLabel(label);
+      }
+
+      function resetButtonState() {
+        setEventStatus(BUTTON_LABEL_IDLE);
+      }
+
       function recordEvent(eventName, eventValue) {
         var encodedEventName = encodeURIComponent(eventName);
         var encodedEventValue = encodeURIComponent(eventValue);
@@ -179,10 +207,34 @@
       eventValueInput.addEventListener("input", updatePreview);
 
       function handleRecordEvent() {
+        if (button.textContent !== BUTTON_LABEL_IDLE) {
+          resetButtonState();
+          return;
+        }
+
         var eventName = eventNameInput.value;
         var eventValue = eventValueInput.value;
 
+        isAwaitingEventResult = true;
+        sentAttemptTimestamp = Date.now();
         recordEvent(eventName, eventValue);
+
+        clearResultTimer();
+        resultTimer = window.setTimeout(function() {
+          if (isAwaitingEventResult) {
+            setEventStatus(BUTTON_LABEL_FAILURE);
+          }
+        }, 1200);
+      }
+
+      function maybeMarkSuccess() {
+        if (!isAwaitingEventResult) {
+          return;
+        }
+
+        if (Date.now() - sentAttemptTimestamp < 2000) {
+          setEventStatus(BUTTON_LABEL_SUCCESS);
+        }
       }
 
       button.addEventListener("click", handleRecordEvent);
@@ -190,7 +242,14 @@
         event.preventDefault();
         handleRecordEvent();
       });
+      window.addEventListener("blur", maybeMarkSuccess);
+      document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === "hidden") {
+          maybeMarkSuccess();
+        }
+      });
 
+      setButtonLabel(BUTTON_LABEL_IDLE);
       updatePreview();
     </script>
   </body>
