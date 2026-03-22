@@ -105,6 +105,45 @@
         overflow-x: auto;
       }
 
+      .status {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #e0f2fe;
+        color: #0f4c81;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .status[data-state="pending"] {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status[data-state="success"] {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .status[data-state="error"] {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .native-debug {
+        margin: 0 0 18px;
+        padding: 16px;
+        border-radius: 18px;
+        background: #f8fafc;
+        color: #1e293b;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        border: 1px solid #dbe4f0;
+      }
+
       #button {
         width: 100%;
         min-height: 64px;
@@ -143,6 +182,10 @@
           </div>
         </div>
         <pre id="event-preview" class="event-preview"></pre>
+        <div id="event-status" class="status" data-state="idle">Waiting for input.</div>
+        <pre id="native-debug" class="native-debug">Generated af-event URL: (not generated yet)
+
+Latest native result: No native callback received yet.</pre>
         <div id="main">
           <button id="button" type="button">Record Event</button>
         </div>
@@ -150,18 +193,21 @@
     </main>
     <script type="text/javascript">
       var BUTTON_LABEL_IDLE = "Record Event";
+      var BUTTON_LABEL_PENDING = "Sending...";
       var BUTTON_LABEL_SUCCESS = "Event sent successfully";
       var BUTTON_LABEL_FAILURE = "Not working";
       function setButtonLabel(label) {
         button.textContent = label;
       }
 
-      function setEventStatus(label) {
+      function setEventStatus(label, message, state) {
         setButtonLabel(label);
+        statusBox.textContent = message;
+        statusBox.setAttribute("data-state", state || "idle");
       }
 
       function resetButtonState() {
-        setEventStatus(BUTTON_LABEL_IDLE);
+        setEventStatus(BUTTON_LABEL_IDLE, "Waiting for input.", "idle");
       }
 
       function recordEvent(eventName, eventValue) {
@@ -169,6 +215,9 @@
         var encodedEventValue = encodeURIComponent(eventValue);
         var schemeUrl = "af-event://inappevent?eventName=" + encodedEventName + "&eventValue=" + encodedEventValue;
         var iframe = document.createElement("iframe");
+        lastGeneratedSchemeUrl = schemeUrl;
+        lastNativeResult = "Request dispatched from page. Waiting for native callback...";
+        updateNativeDebug();
 
         iframe.style.display = "none";
         iframe.setAttribute("src", schemeUrl);
@@ -180,6 +229,16 @@
       var eventNameInput = document.getElementById("event-name");
       var eventValueInput = document.getElementById("event-value");
       var eventPreview = document.getElementById("event-preview");
+      var statusBox = document.getElementById("event-status");
+      var nativeDebugBox = document.getElementById("native-debug");
+      var lastGeneratedSchemeUrl = "";
+      var lastNativeResult = "No native callback received yet.";
+
+      function updateNativeDebug() {
+        nativeDebugBox.textContent = "Generated af-event URL: " +
+          (lastGeneratedSchemeUrl || "(not generated yet)") + "\n\n" +
+          "Latest native result: " + lastNativeResult;
+      }
 
       function updatePreview() {
         var eventName = eventNameInput.value || "(empty)";
@@ -202,12 +261,29 @@
 
         try {
           JSON.parse(eventValue);
+          setEventStatus(BUTTON_LABEL_PENDING, "Waiting for native WebView callback...", "idle");
           recordEvent(eventName, eventValue);
-          setEventStatus(BUTTON_LABEL_SUCCESS);
         } catch (error) {
-          setEventStatus(BUTTON_LABEL_FAILURE);
+          setEventStatus(BUTTON_LABEL_FAILURE, "Invalid JSON in Event Value.", "error");
         }
       }
+
+      window.onNativeEventResult = function(status, message) {
+        lastNativeResult = status + ": " + (message || "(no message)");
+        updateNativeDebug();
+
+        if (status === "pending") {
+          setEventStatus(BUTTON_LABEL_PENDING, message || "Native layer accepted the event. Waiting for AppsFlyer SDK result.", "pending");
+          return;
+        }
+
+        if (status === "success") {
+          setEventStatus(BUTTON_LABEL_SUCCESS, message || "Native layer accepted the event.", "success");
+          return;
+        }
+
+        setEventStatus(BUTTON_LABEL_FAILURE, message || "Native layer rejected the event.", "error");
+      };
 
       button.addEventListener("click", handleRecordEvent);
       button.addEventListener("touchend", function(event) {
@@ -215,8 +291,9 @@
         handleRecordEvent();
       });
 
-      setButtonLabel(BUTTON_LABEL_IDLE);
+      resetButtonState();
       updatePreview();
+      updateNativeDebug();
     </script>
   </body>
 </html>
