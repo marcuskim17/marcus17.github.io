@@ -1,24 +1,35 @@
 /* CSS files add styling rules to your content */
 
 body {
-  font-family: helvetica, arial, sans-serif;
-  padding: 40px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   width: 100%;
-  height: 100%;
-  background: #ffffff;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(0, 160, 224, 0.14), transparent 30%),
+    linear-gradient(180deg, #f8fbff 0%, #eef6fb 100%);
+  color: #16324f;
 }
 
 * {
   box-sizing: border-box;
 }
 
+.page-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 16px calc(36px + env(safe-area-inset-bottom, 0px));
+}
+
 .row {
   display: flex;
   justify-content: space-around;
+  align-items: center;
+  gap: 16px;
 }
 
 .column img {
-  width: 70%;
+  width: min(100%, 220px);
 }
 
 /* Clear floats after image containers */
@@ -32,16 +43,18 @@ h1 {
   font-family: sans-serif;
   font-style: normal;
   font-weight: bold;
-  font-size: 70px;
-  line-height: 80px;
+  font-size: clamp(2.2rem, 7vw, 4.4rem);
+  line-height: 1.05;
   color: #00a0e0;
+  margin: 20px 0 8px;
 }
 
 h2 {
   font-family: sans-serif;
   font-style: normal;
-  font-size: 45px;
+  font-size: clamp(1.35rem, 4.5vw, 2.4rem);
   color: gray;
+  margin: 0 0 16px;
 }
 
 .storebox {
@@ -53,9 +66,11 @@ h2 {
   display: flex;
   text-align: center;
   justify-content: space-around;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 .stores-wrapper img {
-  width: 400px;
+  width: min(100%, 320px);
 }
 .appstore-image {
   margin-top: 30px;
@@ -69,15 +84,18 @@ h2 {
 .present_url {
   word-break: break-all;
   position: relative;
-  padding: 40px;
-  border: 1px solid gray;
-  border-radius: 15px;
-  font-size: 30px;
-  height: 300px;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #c5d4e3;
+  border-radius: 18px;
+  font-size: clamp(1rem, 3.6vw, 1.2rem);
+  min-height: 220px;
+  background: rgba(255, 255, 255, 0.92);
 }
 .url-container {
   display: flex;
   flex-direction: column;
+  gap: 18px;
 }
 .input_url-container {
   display: flex;
@@ -97,14 +115,17 @@ h2 {
 }
 
 .code_button {
-  background-color: #5baac7; /* Green */
+  background-color: #5baac7;
   border: none;
   color: white;
-  padding: 15px 32px;
+  width: 100%;
+  padding: 16px 24px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 30px;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  font-weight: 700;
+  border-radius: 16px;
 }
 
 .code_button:active {
@@ -113,4 +134,23 @@ h2 {
      -moz-box-shadow: inset 0px 0px 5px #5baac7;
           box-shadow: inset 0px 0px 5px #5baac7;
    outline: none;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .row {
+    justify-content: space-between;
+  }
+
+  .present_url {
+    min-height: 180px;
+  }
 }

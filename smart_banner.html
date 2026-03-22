@@ -2,7 +2,82 @@
 <html lang="en-us">
   <head>
   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Smart Banner Test Page</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(249, 115, 22, 0.18), transparent 30%),
+          linear-gradient(180deg, #fff9f4 0%, #fff3e7 100%);
+        color: #3b1f10;
+      }
+
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+        display: flex;
+        align-items: center;
+      }
+
+      .card {
+        width: 100%;
+        padding: 24px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(249, 115, 22, 0.12);
+        color: #c2410c;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 6vw, 3rem);
+        line-height: 1.05;
+      }
+
+      p {
+        margin: 0 0 20px;
+        color: #6b4a38;
+        line-height: 1.6;
+      }
+
+      .launch-link {
+        display: block;
+        padding: 20px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #ea580c, #fb923c);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        box-shadow: 0 14px 30px rgba(234, 88, 12, 0.22);
+        word-break: break-word;
+      }
+
+      .launch-link span {
+        display: block;
+        margin-top: 8px;
+        font-weight: 500;
+        opacity: 0.92;
+      }
+    </style>
     <script>
       !function(t,e,n,s,a,c,i,o,p){t.AppsFlyerSdkObject=a,t.AF=t.AF||function(){
       (t.AF.q=t.AF.q||[]).push([Date.now()].concat(Array.prototype.slice.call(arguments)))},
@@ -14,8 +89,16 @@
   </head>
 
   <body>
-    <main>
-      <h1><a href="https://manhwakyung.onelink.me/Te4S/testpage" target="_blank">https://manhwakyung.onelink.me/Te4S/testpage</h1>
+    <main class="page">
+      <section class="card">
+        <span class="eyebrow">Banner Test</span>
+        <h1>Smart Banner Page</h1>
+        <p>This page loads the AppsFlyer web SDK and shows the configured smart banner. Use the link below to open the matching OneLink destination in a new tab.</p>
+        <a class="launch-link" href="https://manhwakyung.onelink.me/Te4S/testpage" target="_blank" rel="noopener noreferrer">
+          Open OneLink Target
+          <span>https://manhwakyung.onelink.me/Te4S/testpage</span>
+        </a>
+      </section>
     </main>
   </body>
 </html>

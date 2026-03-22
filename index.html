@@ -1,22 +1,213 @@
 <!doctype html>
 <html lang="en-us">
   <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/styles.css" rel="stylesheet">
-    <title>Test Page</title>
+    <title>AppsFlyer Test Dashboard</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top, rgba(37, 99, 235, 0.14), transparent 32%),
+          linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+        color: #10233f;
+      }
+
+      .page {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .hero {
+        padding: 18px 0 24px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(29, 78, 216, 0.1);
+        color: #1d4ed8;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .page h1 {
+        margin: 14px 0 10px;
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.05;
+      }
+
+      .hero p {
+        max-width: 60ch;
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #4b5b75;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin: 24px 0 10px;
+      }
+
+      .stat {
+        padding: 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        backdrop-filter: blur(10px);
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 1.4rem;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 4px;
+        color: #5c6b84;
+        font-size: 0.95rem;
+      }
+
+      .section-title {
+        margin: 22px 0 14px;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #304764;
+      }
+
+      .link-list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .link-button {
+        display: block;
+        width: 100%;
+        min-height: 88px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 18px;
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        color: #fff;
+        font-size: clamp(1.1rem, 4vw, 1.6rem);
+        font-weight: 700;
+        text-align: left;
+        text-decoration: none;
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.2);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .link-button:hover,
+      .link-button:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 32px rgba(37, 99, 235, 0.24);
+        outline: none;
+      }
+
+      .link-button:active {
+        transform: translateY(1px);
+      }
+
+      .button-label {
+        display: block;
+      }
+
+      .button-meta {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        opacity: 0.86;
+      }
+
+      .footer-note {
+        margin-top: 24px;
+        color: #5c6b84;
+        font-size: 0.95rem;
+      }
+
+      @media (min-width: 640px) {
+        .page {
+          padding-top: 40px;
+        }
+
+        .link-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 639px) {
+        .stats {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <input type=button style="height:200px;width:400px;font-size:50px;"
-      onClick="location.href='https://marcuskim17.github.io/marcus17.github.io/inapp_event.html'" value='IAP Test'>
-    <p> Hello world!</p>
-    <input type=button style="height:200px;width:400px;font-size:50px;"
-      onClick="location.href='https://marcuskim17.github.io/marcus17.github.io/onelink_test.html'" value='OneLink Test'>
-    <p> Hello world!</p>
-    <input type=button style="height:200px;width:400px;font-size:50px;"
-      onClick="location.href='https://marcuskim17.github.io/marcus17.github.io/smart_script'" value='Smart Script'>
-    <p> Hello world!</p>
-    <input type=button style="height:200px;width:400px;font-size:50px;"
-      onClick="location.href='https://marcuskim17.github.io/marcus17.github.io/smart_banner.html'" value='Smart Banner'>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">marcus17.github.io</span>
+        <h1>AppsFlyer Test Dashboard</h1>
+        <p>Select a page to open your current deep-link, webview, and banner test flows. This homepage is tuned to read well on phones, tablets, and embedded webviews.</p>
+
+        <div class="stats">
+          <div class="stat">
+            <strong>4</strong>
+            <span>Quick-launch test pages</span>
+          </div>
+          <div class="stat">
+            <strong>Mobile-first</strong>
+            <span>Responsive layout for browser and webview use</span>
+          </div>
+        </div>
+      </section>
+
+      <p class="section-title">Launch Tests</p>
+
+      <div class="link-list">
+        <a class="link-button" href="https://marcuskim17.github.io/marcus17.github.io/inapp_event.html">
+          <span class="button-label">IAP Test</span>
+          <span class="button-meta">Record an in-app event from a webview page.</span>
+        </a>
+        <a class="link-button" href="https://marcuskim17.github.io/marcus17.github.io/onelink_test.html">
+          <span class="button-label">OneLink Test</span>
+          <span class="button-meta">Open a lightweight deep-link test page.</span>
+        </a>
+        <a class="link-button" href="https://marcuskim17.github.io/marcus17.github.io/smart_script">
+          <span class="button-label">Smart Script</span>
+          <span class="button-meta">Launch the Smart Script demo and output tools.</span>
+        </a>
+        <a class="link-button" href="https://marcuskim17.github.io/marcus17.github.io/smart_banner.html">
+          <span class="button-label">Smart Banner</span>
+          <span class="button-meta">Load the AppsFlyer smart banner test page.</span>
+        </a>
+      </div>
+
+      <p class="footer-note">You can keep expanding this page as the main entry point for your active tests while older experiments stay elsewhere in the repo.</p>
+    </main>
   </body>
 </html>
