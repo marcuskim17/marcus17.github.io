@@ -12,6 +12,7 @@
       body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 14px;
         background:
           radial-gradient(circle at top, rgba(14, 165, 233, 0.15), transparent 30%),
           linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
@@ -42,19 +43,20 @@
         border-radius: 999px;
         background: rgba(14, 165, 233, 0.12);
         color: #0369a1;
-        font-size: 0.85rem;
+        font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
       }
 
       h1 {
         margin: 0 0 10px;
-        font-size: clamp(2rem, 6vw, 3rem);
+        font-size: clamp(1.55rem, 4.8vw, 2.35rem);
         line-height: 1.05;
       }
 
       p {
         margin: 0;
+        font-size: 0.92rem;
         line-height: 1.6;
         color: #52627d;
       }
@@ -68,6 +70,7 @@
       .field label {
         display: block;
         margin-bottom: 8px;
+        font-size: 0.9rem;
         font-weight: 700;
         color: #1e3a5f;
       }
@@ -79,6 +82,7 @@
         border-radius: 16px;
         padding: 14px 16px;
         font: inherit;
+        font-size: 0.95rem;
         color: #11213d;
         background: #fff;
       }
@@ -95,7 +99,7 @@
         background: #eff6ff;
         color: #1e3a8a;
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 0.95rem;
+        font-size: 0.82rem;
         line-height: 1.6;
         white-space: pre-wrap;
         overflow-x: auto;
@@ -108,7 +112,7 @@
         border-radius: 18px;
         background: linear-gradient(135deg, #0284c7, #2563eb);
         color: #fff;
-        font-size: 1.1rem;
+        font-size: 0.96rem;
         font-weight: 700;
         box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
         cursor: pointer;
@@ -148,24 +152,11 @@
       var BUTTON_LABEL_IDLE = "Record Event";
       var BUTTON_LABEL_SUCCESS = "Event sent successfully";
       var BUTTON_LABEL_FAILURE = "Not working";
-      var isAwaitingEventResult = false;
-      var sentAttemptTimestamp = 0;
-      var resultTimer = null;
-
       function setButtonLabel(label) {
         button.textContent = label;
       }
 
-      function clearResultTimer() {
-        if (resultTimer) {
-          window.clearTimeout(resultTimer);
-          resultTimer = null;
-        }
-      }
-
       function setEventStatus(label) {
-        clearResultTimer();
-        isAwaitingEventResult = false;
         setButtonLabel(label);
       }
 
@@ -177,18 +168,12 @@
         var encodedEventName = encodeURIComponent(eventName);
         var encodedEventValue = encodeURIComponent(eventValue);
         var schemeUrl = "af-event://inappevent?eventName=" + encodedEventName + "&eventValue=" + encodedEventValue;
+        var iframe = document.createElement("iframe");
 
-        // Some app webviews ignore custom schemes triggered from hidden iframes,
-        // so prefer a direct navigation and keep the iframe path as a fallback.
-        try {
-          window.location.href = schemeUrl;
-        } catch (error) {
-          var iframe = document.createElement("iframe");
-          iframe.style.display = "none";
-          iframe.setAttribute("src", schemeUrl);
-          document.documentElement.appendChild(iframe);
-          iframe.parentNode.removeChild(iframe);
-        }
+        iframe.style.display = "none";
+        iframe.setAttribute("src", schemeUrl);
+        document.documentElement.appendChild(iframe);
+        iframe.parentNode.removeChild(iframe);
       }
 
       var button = document.getElementById("button");
@@ -215,25 +200,12 @@
         var eventName = eventNameInput.value;
         var eventValue = eventValueInput.value;
 
-        isAwaitingEventResult = true;
-        sentAttemptTimestamp = Date.now();
-        recordEvent(eventName, eventValue);
-
-        clearResultTimer();
-        resultTimer = window.setTimeout(function() {
-          if (isAwaitingEventResult) {
-            setEventStatus(BUTTON_LABEL_FAILURE);
-          }
-        }, 1200);
-      }
-
-      function maybeMarkSuccess() {
-        if (!isAwaitingEventResult) {
-          return;
-        }
-
-        if (Date.now() - sentAttemptTimestamp < 2000) {
+        try {
+          JSON.parse(eventValue);
+          recordEvent(eventName, eventValue);
           setEventStatus(BUTTON_LABEL_SUCCESS);
+        } catch (error) {
+          setEventStatus(BUTTON_LABEL_FAILURE);
         }
       }
 
@@ -241,12 +213,6 @@
       button.addEventListener("touchend", function(event) {
         event.preventDefault();
         handleRecordEvent();
-      });
-      window.addEventListener("blur", maybeMarkSuccess);
-      document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === "hidden") {
-          maybeMarkSuccess();
-        }
       });
 
       setButtonLabel(BUTTON_LABEL_IDLE);
