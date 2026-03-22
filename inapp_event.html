@@ -111,6 +111,14 @@
         font-size: 1.1rem;
         font-weight: 700;
         box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        touch-action: manipulation;
+      }
+
+      #button:active {
+        transform: translateY(1px);
       }
     </style>
   </head>
@@ -132,20 +140,27 @@
         </div>
         <pre id="event-preview" class="event-preview"></pre>
         <div id="main">
-          <input id="button" type="button" value="Record Event">
+          <button id="button" type="button">Record Event</button>
         </div>
       </section>
     </main>
     <script type="text/javascript">
-      
-      function recordEvent(eventName,eventValue) {
+      function recordEvent(eventName, eventValue) {
+        var encodedEventName = encodeURIComponent(eventName);
+        var encodedEventValue = encodeURIComponent(eventValue);
+        var schemeUrl = "af-event://inappevent?eventName=" + encodedEventName + "&eventValue=" + encodedEventValue;
 
-        var iframe = document.createElement("IFRAME");
-        
-        iframe.setAttribute("src", "af-event://inappevent?eventName="+eventName+"&eventValue="+eventValue);
-        document.documentElement.appendChild(iframe);
-        iframe.parentNode.removeChild(iframe);
-        iframe = null;
+        // Some app webviews ignore custom schemes triggered from hidden iframes,
+        // so prefer a direct navigation and keep the iframe path as a fallback.
+        try {
+          window.location.href = schemeUrl;
+        } catch (error) {
+          var iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.setAttribute("src", schemeUrl);
+          document.documentElement.appendChild(iframe);
+          iframe.parentNode.removeChild(iframe);
+        }
       }
 
       var button = document.getElementById("button");
@@ -163,12 +178,18 @@
       eventNameInput.addEventListener("input", updatePreview);
       eventValueInput.addEventListener("input", updatePreview);
 
-      button.onclick = function() {
+      function handleRecordEvent() {
         var eventName = eventNameInput.value;
         var eventValue = eventValueInput.value;
 
         recordEvent(eventName, eventValue);
-      };
+      }
+
+      button.addEventListener("click", handleRecordEvent);
+      button.addEventListener("touchend", function(event) {
+        event.preventDefault();
+        handleRecordEvent();
+      });
 
       updatePreview();
     </script>
